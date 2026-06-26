@@ -1,5 +1,5 @@
-// FitCore Service Worker — v4
-const CACHE = 'fitcore-v4';
+// FitCore Service Worker — v5
+const CACHE = 'fitcore-v5';
 const FILES = [
   '/',
   '/index.html',

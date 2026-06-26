@@ -421,6 +421,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .ico-rice{-webkit-mask-image:url(/icons/ui/rice.svg);mask-image:url(/icons/ui/rice.svg)}
 .ico-avocado{-webkit-mask-image:url(/icons/ui/avocado.svg);mask-image:url(/icons/ui/avocado.svg)}
 .ico-water{-webkit-mask-image:url(/icons/ui/water.svg);mask-image:url(/icons/ui/water.svg)}
+.ico-skip{-webkit-mask-image:url(/icons/ui/skip.svg);mask-image:url(/icons/ui/skip.svg)}
+.ico-play{-webkit-mask-image:url(/icons/ui/play.svg);mask-image:url(/icons/ui/play.svg)}
+.ico-pause{-webkit-mask-image:url(/icons/ui/pause.svg);mask-image:url(/icons/ui/pause.svg)}
 </style>
 </head>
 <body>
@@ -616,7 +619,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
   <div class="tm-hd">
     <button class="tm-cl" onclick="closeTM()">✕</button>
     <div class="tm-wn" id="tm-wn"></div>
-    <button class="tm-sk" onclick="skipEx()">⏭</button>
+    <button class="tm-sk" onclick="skipEx()"><span class="ico ico-skip"></span></button>
   </div>
   <div class="tm-bd">
     <div class="tm-ph work" id="tm-ph">PREPARADO</div>
@@ -634,7 +637,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
     <div class="tm-nx" id="tm-nx"></div>
     <div class="tm-ctrl">
       <button class="tmb tmb-S" onclick="restartEx()">↺</button>
-      <button class="tmb tmb-M" id="tm-pb" onclick="togTM()">▶</button>
+      <button class="tmb tmb-M" id="tm-pb" onclick="togTM()"><span class="ico ico-play"></span></button>
       <button class="tmb tmb-S" onclick="togVoiceTM()" id="v-btn"><span class="ico ico-volume"></span></button>
     </div>
     <div class="tm-pb"><div class="tm-pf" id="tm-pf"></div></div>
@@ -990,7 +993,7 @@ function startW(id){
 function loadEx(i){
   const ex=TM.w.exs[i];if(!ex){finishW();return}
   TM.i=i;TM.ph='work';TM.sL=ex.d;TM.sT=ex.d;TM.run=false;
-  document.getElementById('tm-pb').textContent='▶';
+  document.getElementById('tm-pb').innerHTML='<span class="ico ico-play"></span>';
   updTM();renderExScroll();
   if(i>0)speak(ex.n);
 }
@@ -1016,8 +1019,8 @@ function updTM(){
   g2('tm-cnt',`Ejercicio ${TM.i+1} de ${TM.w.exs.length}`);
 }
 function togTM(){TM.run?pauseTM():resumeTM()}
-function resumeTM(){TM.run=true;document.getElementById('tm-pb').textContent='⏸';TM.iv=setInterval(tickTM,1000)}
-function pauseTM(){TM.run=false;document.getElementById('tm-pb').textContent='▶';clearInterval(TM.iv)}
+function resumeTM(){TM.run=true;document.getElementById('tm-pb').innerHTML='<span class="ico ico-pause"></span>';TM.iv=setInterval(tickTM,1000)}
+function pauseTM(){TM.run=false;document.getElementById('tm-pb').innerHTML='<span class="ico ico-play"></span>';clearInterval(TM.iv)}
 function tickTM(){
   if(TM.sL<=0){clearInterval(TM.iv);TM.run=false;phEnd();return}
   TM.sL--;
