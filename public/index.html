@@ -996,7 +996,7 @@ function previewW(id){
   document.body.style.overflow='hidden';
 }
 function closeWP(){document.getElementById('wpreview').classList.remove('on');document.body.style.overflow='';_previewId=null}
-function startWFromPreview(){closeWP();if(_previewId)startW(_previewId)}
+function startWFromPreview(){const id=_previewId;closeWP();if(id)startW(id)}
 
 function startW(id){
   const w=WKS.find(x=>x.id===id);if(!w)return;
