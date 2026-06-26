@@ -225,6 +225,31 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .exn{width:17px;text-align:center;font-size:11px;font-weight:700;color:var(--tx3);flex-shrink:0}
 .exl{flex:1}.exd{font-size:11px;color:var(--tx3)}
 
+/* WORKOUT PREVIEW */
+#wpreview{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:550;display:none;align-items:flex-end;justify-content:center}
+#wpreview.on{display:flex}
+.wp-inner{background:var(--sur);border-radius:24px 24px 0 0;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
+.wp-hd{padding:20px 20px 14px;border-bottom:1px solid var(--brd);flex-shrink:0}
+.wp-close{position:absolute;top:calc(10vh + 12px);right:18px;width:34px;height:34px;border-radius:50%;background:var(--bg2);border:1px solid var(--brd);cursor:pointer;font-size:15px;color:var(--tx2);display:flex;align-items:center;justify-content:center}
+.wp-em{font-size:38px;margin-bottom:8px;line-height:1}
+.wp-nm{font-size:22px;font-weight:900;letter-spacing:-.5px;color:var(--tx);margin-bottom:4px}
+.wp-ds{font-size:14px;color:var(--tx2);line-height:1.4;margin-bottom:12px}
+.wp-meta{display:flex;gap:10px;flex-wrap:wrap}
+.wp-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:100px;background:var(--bg2);border:1px solid var(--brd);font-size:12px;font-weight:600;color:var(--tx2)}
+.wp-pill .ico{font-size:13px}
+.wp-body{overflow-y:auto;flex:1;padding:16px 20px}
+.wp-sec-ttl{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.wp-exlist{display:flex;flex-direction:column;gap:2px}
+.wp-ex{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rxs);background:var(--bg2)}
+.wp-ex-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.wp-ex-ph-work{background:var(--GL);color:var(--G)}
+.wp-ex-ph-rest{background:var(--YL);color:var(--Y)}
+.wp-ex-ph-warm{background:var(--BL);color:var(--B)}
+.wp-ex-ph-cool{background:var(--PL);color:var(--P)}
+.wp-ex-name{flex:1;font-size:14px;font-weight:500;color:var(--tx)}
+.wp-ex-dur{font-size:12px;color:var(--tx3);white-space:nowrap}
+.wp-ft{padding:14px 20px calc(20px + var(--sb));border-top:1px solid var(--brd);flex-shrink:0}
+
 /* FINISH */
 #fin{position:fixed;inset:0;background:var(--bg);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
 #fin.on{display:flex;animation:fadeUp .3s ease}
@@ -618,6 +643,28 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
   <div class="tm-ft"><div class="exs" id="exs"></div></div>
 </div>
 
+<!-- WORKOUT PREVIEW MODAL -->
+<div id="wpreview">
+  <div class="wp-inner">
+    <div class="wp-hd">
+      <button class="wp-close" onclick="closeWP()">✕</button>
+      <div class="wp-em" id="wp-em"></div>
+      <div class="wp-nm" id="wp-nm"></div>
+      <div class="wp-ds" id="wp-ds"></div>
+      <div class="wp-meta" id="wp-meta"></div>
+    </div>
+    <div class="wp-body">
+      <div class="wp-sec-ttl">Ejercicios</div>
+      <div class="wp-exlist" id="wp-exlist"></div>
+    </div>
+    <div class="wp-ft">
+      <button class="btn btn-p btn-full" id="wp-start-btn" onclick="startWFromPreview()">
+        <span class="ico ico-barbell"></span>&nbsp;Empezar entrenamiento
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- FINISH OVERLAY -->
 <div id="fin">
   <div class="fin-em"><span class="ico ico-trophy"></span></div>
@@ -806,7 +853,7 @@ function renderWKS(){
   const grid=document.getElementById('wgrid');if(!grid)return;
   const list=activeCat==='all'?WKS:WKS.filter(w=>w.cat===activeCat);
   if(!list.length){grid.innerHTML=`<div class="emp"><div class="emp-ic"><span class="ico ico-search"></span></div><div class="emp-ttl">Sin rutinas</div></div>`;return}
-  grid.innerHTML=list.map(w=>`<div class="wc" onclick="startW('${w.id}')">
+  grid.innerHTML=list.map(w=>`<div class="wc" onclick="previewW('${w.id}')">
     <div class="wc-top">
       <div><span class="wc-em"><span class="ico ico-${w.emoji}"></span></span><div class="wc-nm">${w.name}</div><div class="wc-ds">${w.desc}</div></div>
       <span class="wbadge ${w.bc}">${w.badge}</span>
@@ -873,7 +920,7 @@ function renderPlan(){
     const isToday=d.day===today;
     const todayBadge=isToday?'<span style="font-size:11px;background:var(--tx);color:var(--bg);padding:2px 7px;border-radius:100px;font-weight:700;margin-left:6px">HOY</span>':'';
     if(d.rest)return`<div class="plan-day"><div class="pd-rest"><span class="ico ico-sleep"></span> ${DAYS[d.day]} · Descanso${todayBadge}</div></div>`;
-    return`<div class="plan-day" onclick="startW('${d.wid}')">
+    return`<div class="plan-day" onclick="previewW('${d.wid}')">
       <div class="pd-head">
         <div class="flex ic g8"><div class="pd-day-name">${DAYS[d.day]}</div>${todayBadge}</div>
         <span class="pd-badge ${d.bc}" style="font-size:11px;padding:3px 8px;border-radius:100px;font-weight:700">${d.badge}</span>
@@ -897,6 +944,39 @@ const CIRC=2*Math.PI*104; // 653.5
 let TM={w:null,i:0,ph:'work',sL:0,sT:0,iv:null,run:false,t0:null,vo:true};
 const PH_LABELS={work:'EJERCICIO',rest:'DESCANSO',warm:'CALENTAMIENTO',cool:'ENFRIAMIENTO'};
 const PH_STROKES={work:'var(--G)',rest:'var(--Y)',warm:'var(--B)',cool:'var(--P)'};
+
+let _previewId=null;
+function previewW(id){
+  const w=WKS.find(x=>x.id===id);if(!w)return;
+  _previewId=id;
+  document.getElementById('wp-em').innerHTML=`<span class="ico ico-${w.emoji}" style="font-size:38px"></span>`;
+  document.getElementById('wp-nm').textContent=w.name;
+  document.getElementById('wp-ds').textContent=w.desc;
+  const lvlDots=[1,2,3].map(d=>`<div class="ld ${d<=w.lvl?'on':''}" style="width:8px;height:8px"></div>`).join('');
+  document.getElementById('wp-meta').innerHTML=`
+    <div class="wp-pill"><span class="ico ico-stopwatch"></span>${w.dur} min</div>
+    <div class="wp-pill"><span class="ico ico-flame"></span>~${w.kcal} kcal</div>
+    <div class="wp-pill"><div class="lvl-dots" style="gap:3px">${lvlDots}</div>${['Básico','Intermedio','Avanzado'][w.lvl-1]}</div>`;
+  const PH_LABEL={work:'Ejercicio',rest:'Descanso',warm:'Calentamiento',cool:'Enfriamiento'};
+  let exNum=0;
+  document.getElementById('wp-exlist').innerHTML=w.exs.map(ex=>{
+    const isWork=ex.p==='work';
+    if(isWork)exNum++;
+    const num=isWork?exNum:(ex.p==='warm'?'↑':ex.p==='cool'?'↓':'⟳');
+    const dur=ex.d>=60?`${Math.floor(ex.d/60)}min${ex.d%60?` ${ex.d%60}s`:''}`:`${ex.d}s`;
+    const rest=ex.r?` + ${ex.r}s descanso`:'';
+    const reps=ex.reps?` · ${ex.reps}`:'';
+    return`<div class="wp-ex">
+      <div class="wp-ex-num wp-ex-ph-${ex.p}">${num}</div>
+      <div class="wp-ex-name">${ex.n}${reps}</div>
+      <div class="wp-ex-dur">${dur}${rest}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('wpreview').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeWP(){document.getElementById('wpreview').classList.remove('on');document.body.style.overflow='';_previewId=null}
+function startWFromPreview(){closeWP();if(_previewId)startW(_previewId)}
 
 function startW(id){
   const w=WKS.find(x=>x.id===id);if(!w)return;
