@@ -1292,7 +1292,14 @@ function goS(name,btn){
 // PERSIST
 // ═══════════════════════════
 function save(){localStorage.setItem('fc3',JSON.stringify(S))}
-function load(){try{const r=localStorage.getItem('fc3');if(!r)return false;S={...S,...JSON.parse(r)};return!!S.profile}catch{return false}}
+const EMOJI_ICON={'🏋️':'barbell','🏋':'barbell','💪':'dumbbell','🦵':'leg','🤸':'gymnastics','🔥':'flame','🫙':'kettlebell','⚡':'bolt','💥':'burst','🏃':'running','🚴':'cycling','🎯':'target','⏱️':'stopwatch','⏱':'stopwatch','🧘':'meditation','🌿':'leaf'};
+function migrateIcons(){
+  let changed=false;
+  if(S.sessions)S.sessions.forEach(s=>{if(s.emoji&&EMOJI_ICON[s.emoji]){s.emoji=EMOJI_ICON[s.emoji];changed=true}});
+  if(S.plan)S.plan.forEach(d=>{if(d.emoji&&EMOJI_ICON[d.emoji]){d.emoji=EMOJI_ICON[d.emoji];changed=true}});
+  if(changed)save();
+}
+function load(){try{const r=localStorage.getItem('fc3');if(!r)return false;S={...S,...JSON.parse(r)};migrateIcons();return!!S.profile}catch{return false}}
 function doReset(){if(confirm('¿Borrar todos los datos? Irreversible.')){localStorage.clear();location.reload()}}
 
 // ═══════════════════════════
