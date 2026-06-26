@@ -4,8 +4,8 @@
   "private": true,
   "description": "FitCore — PWA de entrenamiento personal",
   "scripts": {
-    "dev": "npx serve . -p 3000",
-    "build": "echo \"Static PWA — no build step\"",
+    "dev": "npx serve public -p 3000",
+    "build": "node -e \"const fs=require('fs'); if(!fs.existsSync('public/index.html')) throw new Error('public/index.html missing'); console.log('FitCore static build OK');\"",
     "icons": "python scripts/generate-icons.py"
   }
 }

@@ -2,7 +2,7 @@
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-ROOT = Path(__file__).resolve().parent.parent / "icons"
+ROOT = Path(__file__).resolve().parent.parent / "public" / "icons"
 SIZES = [72, 96, 128, 192, 512]
 BG = (45, 106, 79)  # --G #2d6a4f
 FG = (247, 247, 245)

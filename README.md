@@ -57,9 +57,9 @@ Abre `http://localhost:3000` en Chrome o Edge.
 ## Desplegar en Vercel (recomendado para móvil)
 
 1. Conecta este repositorio en [vercel.com/new](https://vercel.com/new)
-2. **Framework Preset:** Other (sitio estático)
-3. **Build Command:** dejar vacío o `npm run build`
-4. **Output Directory:** `.` (raíz)
+2. **Framework Preset:** Other
+3. **Build Command:** `npm run build`
+4. **Output Directory:** `public` (también definido en `vercel.json`)
 5. Despliega — obtendrás una URL HTTPS
 
 ### Instalar en el móvil
@@ -80,12 +80,13 @@ La app se abre en pantalla completa, funciona offline y guarda tus datos en el d
 
 ```
 fitcore/
-├── index.html        ← App completa (HTML + CSS + JS)
-├── manifest.json     ← Configuración PWA
-├── sw.js             ← Service Worker (offline + push)
-├── vercel.json       ← Headers y config para Vercel
+├── public/           ← Archivos desplegados en Vercel
+│   ├── index.html    ← App completa (HTML + CSS + JS)
+│   ├── manifest.json ← Configuración PWA
+│   ├── sw.js         ← Service Worker (offline + push)
+│   └── icons/        ← Iconos PWA (72–512px)
+├── vercel.json       ← outputDirectory: public
 ├── package.json      ← Scripts de desarrollo
-├── icons/            ← Iconos PWA (72–512px)
 └── scripts/          ← Generador de iconos
 ```
 
