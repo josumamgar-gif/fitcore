@@ -25,8 +25,18 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // HTML siempre desde red para recibir actualizaciones inmediatas
+  if(e.request.mode==='navigate'||e.request.url.endsWith('index.html')||e.request.url.endsWith('sw.js')){
+    e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+    return;
+  }
+  // Resto de assets: caché primero
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(cached=>cached||fetch(e.request).then(res=>{
+      const clone=res.clone();
+      caches.open(CACHE).then(c=>c.put(e.request,clone));
+      return res;
+    }))
   );
 });
 
