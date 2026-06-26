@@ -363,6 +363,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .emp-ttl{font-size:17px;font-weight:800;letter-spacing:-.3px;color:var(--tx);margin-bottom:5px}
 .emp-tx{font-size:14px;color:var(--tx2);line-height:1.6}
 
+/* LANDSCAPE BLOCK */
+@media screen and (orientation:landscape) and (max-height:600px){
+  #rotate-msg{display:flex!important}
+}
+#rotate-msg{display:none;position:fixed;inset:0;z-index:99999;background:#111110;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#f0f0ed;text-align:center;padding:32px}
+.rotate-ico{font-size:52px;animation:rotateHint 1.8s ease-in-out infinite}
+@keyframes rotateHint{0%,100%{transform:rotate(0deg)}40%{transform:rotate(-90deg)}60%{transform:rotate(-90deg)}}
+.rotate-ttl{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.rotate-sub{font-size:14px;color:#aaaaaa;line-height:1.5}
+
 /* UTILS */
 .px20{padding-left:20px;padding-right:20px}
 .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
@@ -427,6 +437,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 </style>
 </head>
 <body>
+
+<!-- ROTATE MESSAGE -->
+<div id="rotate-msg">
+  <div class="rotate-ico"><span class="ico ico-refresh" style="font-size:52px;color:#f0f0ed"></span></div>
+  <div class="rotate-ttl">Gira el dispositivo</div>
+  <div class="rotate-sub">FitCore está diseñado<br>para usarse en vertical</div>
+</div>
 
 <!-- SPLASH -->
 <div id="splash">
@@ -1395,6 +1412,7 @@ function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e
 // BOOT
 // ═══════════════════════════
 window.addEventListener('load',()=>{
+  if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('portrait').catch(()=>{});
   if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
   setTimeout(()=>{
     document.getElementById('splash').classList.add('hide');
