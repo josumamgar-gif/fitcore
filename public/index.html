@@ -2074,7 +2074,7 @@ window.addEventListener('load',()=>{
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/sw.js?v=14')
       .then(r => console.log('SW registrado:', r.scope))
       .catch(e => console.log('SW error:', e));
   });
