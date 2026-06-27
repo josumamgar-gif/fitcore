@@ -249,6 +249,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .wp-sec-ttl{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
 .wp-exlist{display:flex;flex-direction:column;gap:2px}
 .wp-ex{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rxs);background:var(--bg2)}
+.wp-ex-tap{cursor:pointer;transition:background var(--t),transform var(--t)}
+.wp-ex-tap:active{background:var(--sur2);transform:scale(.99)}
+.wp-ex-info{font-size:16px;color:var(--tx3);flex-shrink:0;line-height:1}
+.wp-ex-hint{font-size:12px;color:var(--tx3);margin:-4px 0 10px;line-height:1.4}
+.day-pick{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day-chip{aspect-ratio:1;border:1.5px solid var(--brd);border-radius:50%;background:var(--bg2);font-size:13px;font-weight:800;color:var(--tx3);cursor:pointer;transition:all var(--t);font-family:var(--fn);padding:0}
+.day-chip.on{background:var(--tx);border-color:var(--tx);color:var(--bg)}
+.day-chip:active{transform:scale(.94)}
+.day-pick-hint{font-size:12px;color:var(--tx3);margin-top:8px;line-height:1.4}
+.day-pick-wrap{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:14px 16px;margin-bottom:14px}
+.day-pick-lbl{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
 .wp-ex-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .wp-ex-ph-work{background:var(--GL);color:var(--G)}
 .wp-ex-ph-rest{background:var(--YL);color:var(--Y)}
@@ -563,8 +574,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
         <div class="sh-sub" id="plan-sub">Generado según tu perfil</div>
       </div>
       <div class="px20 mt8">
+        <div class="day-pick-wrap">
+          <div class="day-pick-lbl">Días de entrenamiento</div>
+          <div class="day-pick" id="plan-day-pick"></div>
+          <div class="day-pick-hint" id="plan-day-hint">Toca los días que quieres entrenar. El plan se actualiza al instante.</div>
+        </div>
         <div style="display:flex;gap:8px;margin-bottom:14px">
-          <button class="btn btn-p" style="flex:1;font-size:14px" onclick="genPlan()"><span class="ico ico-refresh"></span>&nbsp;Regenerar plan</button>
+          <button class="btn btn-p" style="flex:1;font-size:14px" onclick="genPlan()"><span class="ico ico-refresh"></span>&nbsp;Regenerar rutinas</button>
         </div>
       </div>
       <div class="plan-grid" id="plan-grid"></div>
@@ -776,6 +792,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
     </div>
     <div class="wp-body">
       <div class="wp-sec-ttl">Ejercicios</div>
+      <div class="wp-ex-hint" id="wp-ex-hint">Toca un ejercicio para ver cómo hacerlo</div>
       <div class="wp-exlist" id="wp-exlist"></div>
     </div>
     <div class="wp-ft">
@@ -876,6 +893,89 @@ const WKS = [
 
 const CATS=[{id:'all',l:'Todos'},{id:'fuerza',l:'<span class="ico ico-dumbbell"></span> Fuerza'},{id:'hiit',l:'<span class="ico ico-flame"></span> HIIT'},{id:'tabata',l:'<span class="ico ico-bolt"></span> Tabata'},{id:'cardio',l:'<span class="ico ico-running"></span> Cardio'},{id:'crossfit',l:'<span class="ico ico-target"></span> CrossFit'},{id:'movilidad',l:'<span class="ico ico-meditation"></span> Movilidad'}];
 const DAYS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const DAY_SHORT=['L','M','X','J','V','S','D'];
+
+function defaultTrainDays(n){
+  const count=Math.max(1,Math.min(7,n||3)),spacing=Math.floor(7/count),days=[];
+  for(let i=0;i<count;i++)days.push((i*spacing)%7);
+  return days.sort((a,b)=>a-b);
+}
+function getTrainDays(p){
+  p=p||S.profile;if(!p)return defaultTrainDays(3);
+  if(p.trainDays&&p.trainDays.length)return[...p.trainDays].sort((a,b)=>a-b);
+  return defaultTrainDays(p.days||3);
+}
+function renderDayPick(elId,selected,ctx){
+  const el=document.getElementById(elId);if(!el)return;
+  const sel=[...selected].sort((a,b)=>a-b);
+  el.innerHTML=DAY_SHORT.map((d,i)=>`<button type="button" class="day-chip ${sel.includes(i)?'on':''}" data-day="${i}" onclick="togDayPick(this,${i},'${ctx}')">${d}</button>`).join('');
+}
+function togDayPick(btn,idx,ctx){
+  let days;
+  if(ctx==='ob'){if(!OD.trainDays)OD.trainDays=getTrainDays({days:OD.days||3});days=OD.trainDays}
+  else if(ctx==='em'){if(!_emTrainDays)_emTrainDays=getTrainDays(S.profile);days=_emTrainDays}
+  else{days=getTrainDays();S.profile.trainDays=days}
+  const on=btn.classList.toggle('on');
+  if(on){if(!days.includes(idx))days.push(idx)}
+  else{const i=days.indexOf(idx);if(i>-1)days.splice(i,1)}
+  if(!days.length){
+    btn.classList.add('on');days.push(idx);
+    toast('Selecciona al menos un día');
+    return;
+  }
+  days.sort((a,b)=>a-b);
+  if(ctx==='ob'){OD.trainDays=days;OD.days=days.length;const hint=btn.closest('.fg')?.querySelector('.day-pick-hint');if(hint)hint.innerHTML=`<span id="dv">${days.length}</span> día${days.length>1?'s':''} seleccionado${days.length>1?'s':''} · ${days.map(d=>DAYS[d]).join(', ')}`}
+  else if(ctx==='em'){_emTrainDays=days;const h=document.getElementById('em-day-hint');if(h)h.textContent=days.length?`${days.length} día${days.length>1?'s':''}: ${days.map(d=>DAYS[d]).join(', ')}`:'Selecciona al menos un día'}
+  else{S.profile.trainDays=days;S.profile.days=days.length;save();genPlan();renderProf()}
+  const hint=document.getElementById('plan-day-hint');
+  if(hint)hint.textContent=days.length?`${days.length} día${days.length>1?'s':''}: ${days.map(d=>DAYS[d]).join(', ')}`:'Selecciona al menos un día';
+}
+let _emTrainDays=null;
+
+const EX_ALIAS={
+  'sentadilla':'sentadilla_barra','sentadilla barra':'sentadilla_barra','sentadillas sin peso':'sentadilla_barra','air squats':'sentadilla_barra','goblet squat':'sentadilla_barra',
+  'press de banca':'press_banca','press inclinado':'press_banca','flexiones':'press_banca','flexiones explosivas':'burpees','flexion explosiva':'burpees',
+  'peso muerto':'peso_muerto','peso muerto rumano':'peso_muerto',
+  'press militar':'press_militar','pike push up':'press_militar',
+  'remo con barra':'remo_barra','remo en polea':'remo_barra','remo kb':'remo_barra',
+  'curl biceps':'curl_biceps','curl martillo':'curl_biceps',
+  'extension triceps':'extension_triceps','extension triceps polea':'extension_triceps',
+  'dominadas':'dominadas','pull ups':'dominadas',
+  'fondos paralelas':'fondos_paralelas','fondos en silla':'fondos_paralelas',
+  'hip thrust':'hip_thrust','puente de gluteos':'hip_thrust','activacion de gluteos':'hip_thrust',
+  'zancadas':'zancadas','zancada con kb':'zancadas','sentadilla bulgara':'zancadas','estocada con giro':'zancadas',
+  'plancha':'plancha','plank':'plancha','plancha lateral':'plancha','plancha activa':'plancha','plancha lateral d':'plancha','plancha lateral i':'plancha',
+  'burpees':'burpees','burpee':'burpees',
+  'mountain climbers':'mountain_climbers','mountain climber':'mountain_climbers','mountain climber lento':'mountain_climbers',
+  'saltos de tijera':'saltos_tijera','saltos de tijera suaves':'saltos_tijera',
+  'sentadilla con salto':'sentadilla_salto',
+  'sprint en sitio':'sprint_sitio','rodillas altas':'sprint_sitio','marcha en sitio':'sprint_sitio','marcha en sitio lenta':'sprint_sitio','marcha tranquila':'sprint_sitio',
+  'swing kettlebell':'kb_swing','swing kb':'kb_swing','swing kb heavy':'kb_swing',
+  'crunch bicicleta':'crunch_bicicleta','crunch bici':'crunch_bicicleta','crunch con giro':'crunch_bicicleta',
+  'russian twist':'russian_twist','dead bug':'hollow_hold','superman':'hollow_hold',
+  'leg raises':'leg_raises','hollow hold':'hollow_hold','v up':'hollow_hold',
+  'trote suave zona 2':'trote_zona2','trote suave en sitio':'trote_zona2',
+  'ritmo moderado':'cardio_intervalos','ritmo alto':'cardio_intervalos',
+  'thrusters':'thruster','min 1 5 thrusters':'thruster','min 3 5 thrusters':'thruster','min 5 5 thrusters':'thruster','min 7 5 thrusters':'thruster',
+  'cadera 90 90':'cadera_9090','circulos de hombros':'cadera_9090','movilidad articular':'cadera_9090'
+};
+function normExName(s){return(s||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim()}
+function findExCatalogId(name){
+  const key=normExName(name);
+  if(!key)return null;
+  if(EX_ALIAS[key])return EX_ALIAS[key];
+  for(const [alias,id] of Object.entries(EX_ALIAS)){if(key.includes(alias)||alias.includes(key))return id}
+  const ex=EXERCISES.find(e=>{const en=normExName(e.name);return en===key||key.includes(en)||en.includes(key)});
+  return ex?ex.id:null;
+}
+function wpExHtml(num,name,dur,ph,exId){
+  const tap=exId?` wp-ex-tap`:'',click=exId?` onclick="openEXD('${exId}')"`:'',hint=exId?'<span class="wp-ex-info">›</span>':'';
+  return`<div class="wp-ex${tap}"${click}>
+    <div class="wp-ex-num wp-ex-ph-${ph}">${num}</div>
+    <div class="wp-ex-name">${name}</div>
+    <div class="wp-ex-dur">${dur}</div>${hint}
+  </div>`;
+}
 
 // ═══════════════════════════
 // EXERCISE CATALOG
@@ -1088,9 +1188,10 @@ const OBS=[
    render:()=>`<div class="rg">${[['fat_loss','flame','Perder grasa','Reducir % grasa y definir el cuerpo'],['muscle','dumbbell','Ganar músculo','Aumentar masa muscular e hipertrofia'],['both','scale','Recomposición','Perder grasa y ganar músculo a la vez'],['endurance','running','Resistencia','Mejorar fondo cardiovascular'],['health','heart','Salud general','Sentirme mejor y con más energía']].map(([v,e,l,s])=>`<label class="ri ri-row ${OD.goal===v?'sel':''}" onclick="selR('goal','${v}',this)"><input type="radio" name="goal" value="${v}"><span style="font-size:22px"><span class="ico ico-${e}"></span></span><span><span class="rl">${l}</span><span class="rs">${s}</span></span></label>`).join('')}</div>`,
    validate(){if(!OD.goal)return'Selecciona un objetivo';return null},save(){}},
   {eye:'Paso 4 de 6',ttl:'Experiencia y disponibilidad',dsc:'Para adaptar las rutinas a tu nivel real.',
-   render:()=>`<div class="fg"><label class="fl">Nivel</label><div class="rg">${[['beginner','sprout','Principiante','< 6 meses entrenando'],['intermediate','intermediate','Intermedio','6 meses – 2 años'],['advanced','advanced','Avanzado','> 2 años con rutina seria']].map(([v,e,l,s])=>`<label class="ri ri-row ${OD.lvl===v?'sel':''}" onclick="selR('lvl','${v}',this)"><input type="radio" name="lvl" value="${v}"><span style="font-size:20px"><span class="ico ico-${e}"></span></span><span><span class="rl">${l}</span><span class="rs">${s}</span></span></label>`).join('')}</div></div><div class="fg mt16"><label class="fl">Tiempo por sesión</label><div class="rg c2">${['20–30 min','30–45 min','45–60 min','60–90 min'].map(t=>`<label class="ri ${OD.dur===t?'sel':''}" onclick="selR('dur','${t}',this)"><input type="radio" name="dur" value="${t}">${t}</label>`).join('')}</div></div><div class="fg mt16"><label class="fl">Días por semana</label><div class="rv"><span id="dv">${OD.days||3}</span> <span>días</span></div><input class="fr" type="range" id="o-d" min="1" max="7" value="${OD.days||3}" oninput="g2('dv',this.value)"></div>`,
-   validate(){if(!OD.lvl)return'Selecciona tu nivel';if(!OD.dur)return'Selecciona la duración';return null},
-   save(){OD.days=+document.getElementById('o-d').value}},
+   render:()=>{if(!OD.trainDays)OD.trainDays=defaultTrainDays(OD.days||3);
+    return`<div class="fg"><label class="fl">Nivel</label><div class="rg">${[['beginner','sprout','Principiante','< 6 meses entrenando'],['intermediate','intermediate','Intermedio','6 meses – 2 años'],['advanced','advanced','Avanzado','> 2 años con rutina seria']].map(([v,e,l,s])=>`<label class="ri ri-row ${OD.lvl===v?'sel':''}" onclick="selR('lvl','${v}',this)"><input type="radio" name="lvl" value="${v}"><span style="font-size:20px"><span class="ico ico-${e}"></span></span><span><span class="rl">${l}</span><span class="rs">${s}</span></span></label>`).join('')}</div></div><div class="fg mt16"><label class="fl">Tiempo por sesión</label><div class="rg c2">${['20–30 min','30–45 min','45–60 min','60–90 min'].map(t=>`<label class="ri ${OD.dur===t?'sel':''}" onclick="selR('dur','${t}',this)"><input type="radio" name="dur" value="${t}">${t}</label>`).join('')}</div></div><div class="fg mt16"><label class="fl">¿Qué días quieres entrenar?</label><div class="day-pick" id="ob-day-pick"></div><div class="day-pick-hint"><span id="dv">${OD.trainDays.length}</span> día${OD.trainDays.length>1?'s':''} seleccionado${OD.trainDays.length>1?'s':''} · ${OD.trainDays.map(d=>DAYS[d]).join(', ')}</div></div>`},
+   validate(){if(!OD.lvl)return'Selecciona tu nivel';if(!OD.dur)return'Selecciona la duración';if(!OD.trainDays||!OD.trainDays.length)return'Selecciona al menos un día de entrenamiento';return null},
+   save(){OD.days=OD.trainDays.length}},
   {eye:'Paso 5 de 6',ttl:'¿Qué equipo tienes?',dsc:'Para recomendarte los ejercicios correctos.',
    render:()=>`<div class="cig">${[['gym','building','Gimnasio completo','Máquinas, barras y peso libre'],['barbell','barbell','Barra y discos','En casa o en box'],['dumbbells','dumbbell','Mancuernas','Fijas o ajustables'],['kettlebell','kettlebell','Kettlebell','Pesa rusa'],['bands','band','Bandas elásticas','Diferentes resistencias'],['pullup','refresh','Barra dominadas','Puerta o pared'],['cardio_machine','cycling','Máquina cardio','Bici, cinta, elíptica…'],['bodyweight','gymnastics','Solo cuerpo libre','Sin ningún material']].map(([v,e,l,s])=>`<div class="ci ${(OD.equip||[]).includes(v)?'sel':''}" onclick="togCI('equip','${v}',this)"><div class="cib">${(OD.equip||[]).includes(v)?'✓':''}</div><div><div class="cil"><span class="ico ico-${e}"></span> ${l}</div><div class="cie">${s}</div></div></div>`).join('')}</div>`,
    validate(){if(!OD.equip||!OD.equip.length)return'Selecciona al menos uno';return null},save(){}},
@@ -1116,6 +1217,7 @@ function renderOB(i){
   document.getElementById('ob-bk').style.display=i===0?'none':'block';
   document.getElementById('ob-nx').innerHTML=i===OBS.length-1?'¡Comenzar! <span class="ico ico-rocket"></span>':'Continuar →';
   document.getElementById('ob-dots').innerHTML=OBS.map((_,j)=>`<div class="ob-dot ${j<i?'done':j===i?'cur':''}"></div>`).join('');
+  if(i===3)setTimeout(()=>renderDayPick('ob-day-pick',OD.trainDays||defaultTrainDays(OD.days||3),'ob'),0);
 }
 function obNext(){const s=OBS[obI],e=s.validate();if(e){toast(e);return}s.save();if(obI===OBS.length-1){finishOB();return}obI++;renderOB(obI);document.getElementById('ob-bd').scrollTop=0}
 function obBack(){OBS[obI].save();obI--;renderOB(obI)}
@@ -1181,7 +1283,9 @@ function renderWKS(){
 // ═══════════════════════════
 function genPlan(){
   const p=S.profile;if(!p)return;
-  const days=p.days||3,goal=p.goal||'fat_loss',lvl=p.lvl||'beginner';
+  const trainDaysIdx=getTrainDays(p);
+  p.trainDays=trainDaysIdx;p.days=trainDaysIdx.length;
+  const goal=p.goal||'fat_loss',lvl=p.lvl||'beginner';
   const equip=p.equip||['bodyweight'];
 
   // Score workouts by compatibility
@@ -1201,19 +1305,13 @@ function genPlan(){
 
   const scored=[...WKS].map(w=>({...w,_s:score(w)})).sort((a,b)=>b._s-a._s);
   const plan=[];
-  const trainDaysIdx=[];
-
-  // Distribute training days evenly
-  const daySlots=[0,1,2,3,4,5,6];
-  const spacing=Math.floor(7/days);
-  for(let i=0;i<days;i++)trainDaysIdx.push((i*spacing)%7);
 
   let wkIdx=0;
   for(let d=0;d<7;d++){
     if(trainDaysIdx.includes(d)){
       const w=scored[wkIdx%scored.length];wkIdx++;
       // Vary: add mobility if 3+ training days
-      const addMob=days>=4&&wkIdx%3===0;
+      const addMob=trainDaysIdx.length>=4&&wkIdx%3===0;
       plan.push({day:d,rest:false,wid:w.id,wname:w.name,emoji:w.emoji,badge:w.badge,bc:w.bc,dur:w.dur,kcal:w.kcal,addMob});
     }else{
       plan.push({day:d,rest:true});
@@ -1225,7 +1323,11 @@ function genPlan(){
 function renderPlan(){
   const grid=document.getElementById('plan-grid');if(!grid||!S.plan)return;
   const today=(new Date().getDay()+6)%7; // 0=Mon
-  g2('plan-sub',`${S.plan.filter(d=>!d.rest).length} días de entrenamiento esta semana`);
+  const td=getTrainDays();
+  g2('plan-sub',`${td.length} días de entrenamiento · ${td.map(d=>DAY_SHORT[d]).join(' ')}`);
+  renderDayPick('plan-day-pick',td,'plan');
+  const hint=document.getElementById('plan-day-hint');
+  if(hint)hint.textContent=`${td.length} día${td.length>1?'s':''}: ${td.map(d=>DAYS[d]).join(', ')}`;
   grid.innerHTML=S.plan.map(d=>{
     const isToday=d.day===today;
     const todayBadge=isToday?'<span style="font-size:11px;background:var(--tx);color:var(--bg);padding:2px 7px;border-radius:100px;font-weight:700;margin-left:6px">HOY</span>':'';
@@ -1338,15 +1440,15 @@ function previewW(id){
     <div class="wp-pill"><span class="ico ico-flame"></span>~${w.kcal} kcal</div>
     <div class="wp-pill"><div class="lvl-dots" style="gap:3px">${lvlDots}</div>${['Básico','Intermedio','Avanzado'][w.lvl-1]}</div>`;
   const PH_LABEL={work:'Ejercicio',rest:'Descanso',warm:'Calentamiento',cool:'Enfriamiento'};
-  let exNum=0;
+  let exNum=0,hasTap=false;
   document.getElementById('wp-exlist').innerHTML=w.exs.map(ex=>{
     if(ex.p==='warm'){
       const steps=buildWarmSteps(w.cat,ex.d);
-      return steps.map((ws,j)=>`<div class="wp-ex">
-        <div class="wp-ex-num wp-ex-ph-warm">${j+1}</div>
-        <div class="wp-ex-name">${ws.n}</div>
-        <div class="wp-ex-dur">${ws.d}s · ${ws.tip}</div>
-      </div>`).join('');
+      return steps.map((ws,j)=>{
+        const exId=findExCatalogId(ws.n);
+        if(exId)hasTap=true;
+        return wpExHtml(j+1,ws.n,`${ws.d}s · ${ws.tip}`,'warm',exId);
+      }).join('');
     }
     const isWork=ex.p==='work';
     if(isWork)exNum++;
@@ -1354,12 +1456,12 @@ function previewW(id){
     const dur=ex.d>=60?`${Math.floor(ex.d/60)}min${ex.d%60?` ${ex.d%60}s`:''}`:`${ex.d}s`;
     const rest=ex.r?` + ${ex.r}s descanso`:'';
     const reps=ex.reps?` · ${ex.reps}`:'';
-    return`<div class="wp-ex">
-      <div class="wp-ex-num wp-ex-ph-${ex.p}">${num}</div>
-      <div class="wp-ex-name">${ex.n}${reps}</div>
-      <div class="wp-ex-dur">${dur}${rest}</div>
-    </div>`;
+    const exId=isWork?findExCatalogId(ex.n):null;
+    if(exId)hasTap=true;
+    return wpExHtml(num,`${ex.n}${reps}`,`${dur}${rest}`,ex.p,exId);
   }).join('');
+  const hintEl=document.getElementById('wp-ex-hint');
+  if(hintEl)hintEl.style.display=hasTap?'block':'none';
   document.getElementById('wpreview').classList.add('on');
   document.body.style.overflow='hidden';
 }
@@ -1784,31 +1886,34 @@ function renderProf(){
       <div class="ps"><div class="psv">${p.age}</div><div class="psl">Años</div></div>
       <div class="ps"><div class="psv">${p.height}<span>cm</span></div><div class="psl">Altura</div></div>
       <div class="ps"><div class="psv">${bmi}</div><div class="psl">IMC</div></div>
-      <div class="ps"><div class="psv">${p.days||3}</div><div class="psl">Días/sem</div></div>
+      <div class="ps"><div class="psv">${(getTrainDays(p).map(d=>DAY_SHORT[d]).join(' ')||p.days||3)}</div><div class="psl">Días/sem</div></div>
     </div>`;
   updateLastW();
 }
 function openEM(){
   const p=S.profile||{};
+  _emTrainDays=getTrainDays(p);
   document.getElementById('em-bd').innerHTML=`
     <div class="fg"><label class="fl">Nombre</label><input class="fi" id="ep-n" type="text" value="${p.name||''}"></div>
     <div class="frow"><div class="fg"><label class="fl">Edad</label><input class="fi" id="ep-a" type="number" value="${p.age||''}"></div><div class="fg"><label class="fl">Sexo</label><select class="fs" id="ep-s"><option value="H" ${p.sex==='H'?'selected':''}>Hombre</option><option value="M" ${p.sex==='M'?'selected':''}>Mujer</option><option value="O" ${p.sex==='O'?'selected':''}>Otro</option></select></div></div>
     <div class="frow"><div class="fg"><label class="fl">Altura (cm)</label><input class="fi" id="ep-h" type="number" value="${p.height||''}"></div><div class="fg"><label class="fl">Peso objetivo (kg)</label><input class="fi" id="ep-g" type="number" step=".5" value="${p.goalW||''}"></div></div>
-    <div class="fg"><label class="fl">Días entrenamiento / semana</label><input class="fi" id="ep-d" type="number" min="1" max="7" value="${p.days||3}"></div>
+    <div class="fg"><label class="fl">Días de entrenamiento</label><div class="day-pick" id="em-day-pick"></div><div class="day-pick-hint" id="em-day-hint">${_emTrainDays.length} día${_emTrainDays.length>1?'s':''}: ${_emTrainDays.map(d=>DAYS[d]).join(', ')}</div></div>
     <div class="fg"><label class="fl">Actividad diaria</label><select class="fs" id="ep-act"><option value="sedentary" ${p.activity==='sedentary'?'selected':''}>Sedentario</option><option value="light" ${p.activity==='light'?'selected':''}>Ligero</option><option value="moderate" ${p.activity==='moderate'?'selected':''}>Moderado</option><option value="active" ${p.activity==='active'?'selected':''}>Activo</option><option value="very_active" ${p.activity==='very_active'?'selected':''}>Muy activo</option></select></div>
     <div class="fg"><label class="fl">Lesiones / limitaciones</label><textarea class="fta" id="ep-i">${p.injuries||''}</textarea></div>
     <div style="height:30px"></div>`;
+  renderDayPick('em-day-pick',_emTrainDays,'em');
   document.getElementById('em').classList.add('on');
 }
 function saveEM(){
   const nm=document.getElementById('ep-n').value.trim();if(!nm){toast('Nombre no puede estar vacío');return}
+  if(!_emTrainDays||!_emTrainDays.length){toast('Selecciona al menos un día de entrenamiento');return}
   S.profile.name=nm;S.profile.age=+document.getElementById('ep-a').value||S.profile.age;
   S.profile.sex=document.getElementById('ep-s').value;S.profile.height=+document.getElementById('ep-h').value||S.profile.height;
   S.profile.goalW=+parseFloat(document.getElementById('ep-g').value).toFixed(1)||S.profile.goalW;
-  S.profile.days=+document.getElementById('ep-d').value||S.profile.days;
+  S.profile.trainDays=[..._emTrainDays].sort((a,b)=>a-b);S.profile.days=S.profile.trainDays.length;
   S.profile.activity=document.getElementById('ep-act').value;
   S.profile.injuries=document.getElementById('ep-i').value.trim();
-  save();closeEM();renderProf();updateGreeting();renderDash();if(S.plan)genPlan();toast('Perfil guardado ✓');
+  save();closeEM();renderProf();updateGreeting();renderDash();genPlan();toast('Perfil guardado ✓');
 }
 function closeEM(){document.getElementById('em').classList.remove('on')}
 
@@ -1869,7 +1974,7 @@ function migrateIcons(){
   if(S.plan)S.plan.forEach(d=>{if(d.emoji&&EMOJI_ICON[d.emoji]){d.emoji=EMOJI_ICON[d.emoji];changed=true}});
   if(changed)save();
 }
-function load(){try{const r=localStorage.getItem('fc3');if(!r)return false;S={...S,...JSON.parse(r)};migrateIcons();return!!S.profile}catch{return false}}
+function load(){try{const r=localStorage.getItem('fc3');if(!r)return false;S={...S,...JSON.parse(r)};migrateIcons();if(S.profile&&!S.profile.trainDays){S.profile.trainDays=defaultTrainDays(S.profile.days||3);save()}return!!S.profile}catch{return false}}
 function doReset(){if(confirm('¿Borrar todos los datos? Irreversible.')){localStorage.clear();location.reload()}}
 
 // ═══════════════════════════
