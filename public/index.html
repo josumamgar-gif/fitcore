@@ -236,7 +236,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 /* WORKOUT PREVIEW */
 #wpreview{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:550;display:none;align-items:flex-end;justify-content:center}
 #wpreview.on{display:flex}
-.wp-inner{background:var(--sur);border-radius:24px 24px 0 0;width:100%;max-height:90vh;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
+.wp-inner{background:var(--sur);border-radius:24px 24px 0 0;width:100%;max-width:100%;max-height:90vh;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.4,0,.2,1);overflow:hidden;min-width:0}
 .wp-hd{padding:20px 20px 14px;border-bottom:1px solid var(--brd);flex-shrink:0}
 .wp-close{position:absolute;top:calc(10vh + 12px);right:18px;width:34px;height:34px;border-radius:50%;background:var(--bg2);border:1px solid var(--brd);cursor:pointer;font-size:15px;color:var(--tx2);display:flex;align-items:center;justify-content:center}
 .wp-em{font-size:38px;margin-bottom:8px;line-height:1}
@@ -245,13 +245,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .wp-meta{display:flex;gap:10px;flex-wrap:wrap}
 .wp-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:100px;background:var(--bg2);border:1px solid var(--brd);font-size:12px;font-weight:600;color:var(--tx2)}
 .wp-pill .ico{font-size:13px}
-.wp-body{overflow-y:auto;flex:1;padding:16px 20px}
+.wp-body{overflow-y:auto;overflow-x:hidden;overscroll-behavior-x:none;flex:1;padding:16px 20px;min-width:0;-webkit-overflow-scrolling:touch}
 .wp-sec-ttl{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
-.wp-exlist{display:flex;flex-direction:column;gap:2px}
-.wp-ex{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rxs);background:var(--bg2)}
+.wp-exlist{display:flex;flex-direction:column;gap:6px;min-width:0;max-width:100%;overflow-x:hidden}
+.wp-ex{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--rxs);background:var(--bg2);min-width:0;max-width:100%;box-sizing:border-box}
 .wp-ex-tap{cursor:pointer;transition:background var(--t),transform var(--t)}
 .wp-ex-tap:active{background:var(--sur2);transform:scale(.99)}
-.wp-ex-info{font-size:16px;color:var(--tx3);flex-shrink:0;line-height:1}
+.wp-ex-body{flex:1;min-width:0}
+.wp-ex-info{font-size:16px;color:var(--tx3);flex-shrink:0;line-height:1;align-self:center;margin-top:2px}
 .wp-ex-hint{font-size:12px;color:var(--tx3);margin:-4px 0 10px;line-height:1.4}
 .day-pick{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .day-chip{aspect-ratio:1;border:1.5px solid var(--brd);border-radius:50%;background:var(--bg2);font-size:13px;font-weight:800;color:var(--tx3);cursor:pointer;transition:all var(--t);font-family:var(--fn);padding:0}
@@ -260,13 +261,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .day-pick-hint{font-size:12px;color:var(--tx3);margin-top:8px;line-height:1.4}
 .day-pick-wrap{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:14px 16px;margin-bottom:14px}
 .day-pick-lbl{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
-.wp-ex-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.wp-ex-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
 .wp-ex-ph-work{background:var(--GL);color:var(--G)}
 .wp-ex-ph-rest{background:var(--YL);color:var(--Y)}
 .wp-ex-ph-warm{background:var(--BL);color:var(--B)}
 .wp-ex-ph-cool{background:var(--PL);color:var(--P)}
-.wp-ex-name{flex:1;font-size:14px;font-weight:500;color:var(--tx)}
-.wp-ex-dur{font-size:12px;color:var(--tx3);white-space:nowrap}
+.wp-ex-name{font-size:14px;font-weight:600;color:var(--tx);line-height:1.35;word-break:break-word;overflow-wrap:anywhere}
+.wp-ex-dur{font-size:12px;color:var(--tx3);line-height:1.45;margin-top:3px;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
 .wp-ft{padding:14px 20px calc(20px + var(--sb));border-top:1px solid var(--brd);flex-shrink:0}
 
 /* FINISH */
@@ -972,8 +973,10 @@ function wpExHtml(num,name,dur,ph,exId){
   const tap=exId?` wp-ex-tap`:'',click=exId?` onclick="openEXD('${exId}')"`:'',hint=exId?'<span class="wp-ex-info">›</span>':'';
   return`<div class="wp-ex${tap}"${click}>
     <div class="wp-ex-num wp-ex-ph-${ph}">${num}</div>
-    <div class="wp-ex-name">${name}</div>
-    <div class="wp-ex-dur">${dur}</div>${hint}
+    <div class="wp-ex-body">
+      <div class="wp-ex-name">${name}</div>
+      <div class="wp-ex-dur">${dur}</div>
+    </div>${hint}
   </div>`;
 }
 
