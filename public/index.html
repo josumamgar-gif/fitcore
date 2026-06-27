@@ -209,6 +209,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .tm-rp{font-size:14px;color:var(--tx3);margin-top:3px;font-weight:600;letter-spacing:.4px}
 .tm-nx{font-size:13px;color:var(--tx3);margin-top:8px;text-align:center}
 .tm-nx strong{color:var(--tx2)}
+.tm-warm{width:100%;padding:0 24px;margin-top:6px;display:none}
+.tm-warm.on{display:block}
+.tm-warm-bar{display:flex;gap:4px;margin-bottom:8px}
+.tm-warm-seg{flex:1;height:4px;border-radius:2px;background:var(--brd);transition:background .3s}
+.tm-warm-seg.on{background:var(--B)}
+.tm-warm-seg.done{background:var(--B);opacity:.35}
+.tm-warm-lbl{font-size:11px;color:var(--tx3);text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.tm-warm-tip{font-size:14px;color:var(--tx2);text-align:center;line-height:1.45;font-weight:500}
 .tm-ctrl{display:flex;align-items:center;gap:14px;margin-top:24px}
 .tmb{border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t)}
 .tmb:active{opacity:.8;transform:scale(.93)}
@@ -712,6 +720,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
     </div>
     <div class="tm-en" id="tm-en">—</div>
     <div class="tm-rp" id="tm-rp"></div>
+    <div class="tm-warm" id="tm-warm"></div>
     <div class="tm-nx" id="tm-nx"></div>
     <div class="tm-ctrl">
       <button class="tmb tmb-S" onclick="restartEx()">↺</button>
@@ -1242,9 +1251,79 @@ function renderPlan(){
 // TIMER
 // ═══════════════════════════
 const CIRC=2*Math.PI*104; // 653.5
-let TM={w:null,i:0,ph:'work',sL:0,sT:0,iv:null,run:false,t0:null,vo:true};
+let TM={w:null,i:0,ph:'work',sL:0,sT:0,iv:null,run:false,t0:null,vo:true,warmSteps:null,warmIdx:0};
 const PH_LABELS={work:'EJERCICIO',rest:'DESCANSO',warm:'CALENTAMIENTO',cool:'ENFRIAMIENTO'};
 const PH_STROKES={work:'var(--G)',rest:'var(--Y)',warm:'var(--B)',cool:'var(--P)'};
+
+const WARM_PROTOCOLS={
+  fuerza:[
+    {n:'Marcha en sitio',tip:'Eleva las rodillas y respira profundo'},
+    {n:'Círculos de hombros',tip:'10 adelante y 10 atrás, amplia el rango'},
+    {n:'Sentadillas sin peso',tip:'10 reps lentas, pecho arriba y rodillas fuera'},
+    {n:'Activación de glúteos',tip:'Puente de glúteos, aprieta arriba 2 segundos'}
+  ],
+  hiit:[
+    {n:'Marcha en sitio',tip:'Ritmo suave, activa la sangre'},
+    {n:'Saltos de tijera suaves',tip:'Brazos arriba, impacto suave en antepié'},
+    {n:'Sentadillas sin peso',tip:'10 reps controladas, activa piernas'},
+    {n:'Mountain climbers lentos',tip:'Prepara el core, una pierna cada vez'},
+    {n:'Rodillas altas',tip:'Sube la FC gradualmente, torso erguido'}
+  ],
+  tabata:[
+    {n:'Marcha en sitio',tip:'Activa el cuerpo, respira con ritmo'},
+    {n:'Rotación de tronco',tip:'Gira el torso suavemente, brazos cruzados'},
+    {n:'Plancha activa',tip:'Mantén el core firme, cuerpo recto'},
+    {n:'Saltos de tijera',tip:'Ritmo medio, prepara el cardio'}
+  ],
+  cardio:[
+    {n:'Marcha en sitio lenta',tip:'Empieza muy suave, activa las piernas'},
+    {n:'Rodillas altas',tip:'Eleva rodillas al pecho, brazos en oposición'},
+    {n:'Trote suave en sitio',tip:'Aterriza en antepié, ritmo conversacional'},
+    {n:'Movilidad articular',tip:'Círculos de tobillos, caderas y hombros'}
+  ],
+  crossfit:[
+    {n:'Marcha en sitio',tip:'Activa el cuerpo, respira profundo'},
+    {n:'Air squats',tip:'10 sentadillas sin peso, profundas y controladas'},
+    {n:'Flexiones de rodillas',tip:'5–8 reps para activar pecho y brazos'},
+    {n:'Good mornings',tip:'Sin peso, bisagra de cadera, espalda recta'},
+    {n:'Inchworm',tip:'Manos al suelo, camina con pies hacia manos'}
+  ],
+  movilidad:[
+    {n:'Respiración diafragmática',tip:'Inhala por nariz, exhala lento por boca'},
+    {n:'Movilidad articular',tip:'Cuello, hombros, caderas y tobillos en círculos'}
+  ],
+  default:[
+    {n:'Marcha en sitio',tip:'Eleva rodillas, activa el cuerpo'},
+    {n:'Círculos de brazos',tip:'Adelante y atrás, amplia progresivamente'},
+    {n:'Sentadillas sin peso',tip:'10 reps lentas y controladas'},
+    {n:'Estiramiento dinámico',tip:'Balanceos de piernas y rotación de tronco'}
+  ]
+};
+
+function buildWarmSteps(cat,dur){
+  const proto=WARM_PROTOCOLS[cat]||WARM_PROTOCOLS.default;
+  const n=proto.length,base=Math.floor(dur/n);
+  let rem=dur-base*n;
+  return proto.map((s,i)=>({...s,d:base+(i<rem?1:0)}));
+}
+
+function renderWarmUI(){
+  const el=document.getElementById('tm-warm');
+  if(!el||!TM.warmSteps){el&&(el.className='tm-warm');return}
+  const ws=TM.warmSteps[TM.warmIdx],total=TM.warmSteps.length;
+  el.className='tm-warm on';
+  el.innerHTML=`
+    <div class="tm-warm-lbl">Paso ${TM.warmIdx+1} de ${total} · calentamiento</div>
+    <div class="tm-warm-bar">${TM.warmSteps.map((_,i)=>`<div class="tm-warm-seg ${i<TM.warmIdx?'done':i===TM.warmIdx?'on':''}"></div>`).join('')}</div>
+    <div class="tm-warm-tip">${ws.tip}</div>`;
+}
+
+function startWarmStep(announce){
+  const ws=TM.warmSteps[TM.warmIdx];
+  TM.sL=ws.d;TM.sT=ws.d;
+  if(announce&&TM.vo)speak(TM.warmIdx===0?`Calentamiento. ${ws.n}`:ws.n);
+  updTM();renderExScroll();
+}
 
 let _previewId=null;
 function previewW(id){
@@ -1261,9 +1340,17 @@ function previewW(id){
   const PH_LABEL={work:'Ejercicio',rest:'Descanso',warm:'Calentamiento',cool:'Enfriamiento'};
   let exNum=0;
   document.getElementById('wp-exlist').innerHTML=w.exs.map(ex=>{
+    if(ex.p==='warm'){
+      const steps=buildWarmSteps(w.cat,ex.d);
+      return steps.map((ws,j)=>`<div class="wp-ex">
+        <div class="wp-ex-num wp-ex-ph-warm">${j+1}</div>
+        <div class="wp-ex-name">${ws.n}</div>
+        <div class="wp-ex-dur">${ws.d}s · ${ws.tip}</div>
+      </div>`).join('');
+    }
     const isWork=ex.p==='work';
     if(isWork)exNum++;
-    const num=isWork?exNum:(ex.p==='warm'?'↑':ex.p==='cool'?'↓':'⟳');
+    const num=isWork?exNum:(ex.p==='cool'?'↓':'⟳');
     const dur=ex.d>=60?`${Math.floor(ex.d/60)}min${ex.d%60?` ${ex.d%60}s`:''}`:`${ex.d}s`;
     const rest=ex.r?` + ${ex.r}s descanso`:'';
     const reps=ex.reps?` · ${ex.reps}`:'';
@@ -1292,8 +1379,15 @@ function startW(id){
 }
 function loadEx(i){
   const ex=TM.w.exs[i];if(!ex){finishW();return}
-  TM.i=i;TM.ph='work';TM.sL=ex.d;TM.sT=ex.d;TM.run=false;
+  TM.i=i;TM.ph='work';TM.run=false;
+  TM.warmSteps=null;TM.warmIdx=0;
   document.getElementById('tm-pb').innerHTML='<span class="ico ico-play"></span>';
+  if(ex.p==='warm'){
+    TM.warmSteps=buildWarmSteps(TM.w.cat,ex.d);
+    startWarmStep(true);
+    return;
+  }
+  TM.sL=ex.d;TM.sT=ex.d;
   updTM();renderExScroll();
   if(i>0)speak(ex.n);
 }
@@ -1306,17 +1400,28 @@ function updTM(){
   const phEl=document.getElementById('tm-ph');
   phEl.textContent=isR?'DESCANSO':(PH_LABELS[ex.p]||'EJERCICIO');
   phEl.className=`tm-ph ${phK}`;
-  g2('tm-en',isR?'Descansa':ex.n);
-  g2('tm-rp',(!isR&&ex.reps)?ex.reps:'');
-  const nx=TM.w.exs[TM.i+1];
-  document.getElementById('tm-nx').innerHTML=isR?(nx?`Siguiente: <strong>${nx.n}</strong>`:'Último ejercicio'):(ex.r>0?`Descanso: <strong>${ex.r}s</strong>`:(nx?`Siguiente: <strong>${nx.n}</strong>`:'Fin del entrenamiento'));
+  if(ex.p==='warm'&&TM.warmSteps){
+    const ws=TM.warmSteps[TM.warmIdx];
+    g2('tm-en',ws.n);
+    g2('tm-rp','');
+    renderWarmUI();
+    const nx=TM.warmIdx+1<TM.warmSteps.length?TM.warmSteps[TM.warmIdx+1].n:(TM.w.exs[TM.i+1]?.n||'Fin del calentamiento');
+    document.getElementById('tm-nx').innerHTML=`Siguiente: <strong>${nx}</strong>`;
+    g2('tm-cnt',`Calentamiento · paso ${TM.warmIdx+1}/${TM.warmSteps.length}`);
+  }else{
+    const wel=document.getElementById('tm-warm');if(wel)wel.className='tm-warm';
+    g2('tm-en',isR?'Descansa':ex.n);
+    g2('tm-rp',(!isR&&ex.reps)?ex.reps:'');
+    const nx=TM.w.exs[TM.i+1];
+    document.getElementById('tm-nx').innerHTML=isR?(nx?`Siguiente: <strong>${nx.n}</strong>`:'Último ejercicio'):(ex.r>0?`Descanso: <strong>${ex.r}s</strong>`:(nx?`Siguiente: <strong>${nx.n}</strong>`:'Fin del entrenamiento'));
+    g2('tm-cnt',`Ejercicio ${TM.i+1} de ${TM.w.exs.length}`);
+  }
   const pct=t>0?(t-s)/t:0;
   const pg=document.getElementById('ring-pg');
   pg.style.strokeDashoffset=CIRC*(1-pct);
   pg.style.stroke=PH_STROKES[phK]||'var(--G)';
   const fill=Math.round((TM.i/TM.w.exs.length)*100);
   document.getElementById('tm-pf').style.width=fill+'%';
-  g2('tm-cnt',`Ejercicio ${TM.i+1} de ${TM.w.exs.length}`);
 }
 function togTM(){TM.run?pauseTM():resumeTM()}
 function resumeTM(){TM.run=true;document.getElementById('tm-pb').innerHTML='<span class="ico ico-pause"></span>';TM.iv=setInterval(tickTM,1000)}
@@ -1329,11 +1434,28 @@ function tickTM(){
 }
 function phEnd(){
   const ex=TM.w.exs[TM.i];if(!ex)return;
-  if(TM.ph==='work'&&ex.r>0){TM.ph='rest';TM.sL=ex.r;TM.sT=ex.r;speak('Descansa');updTM();resumeTM();}
-  else{const n=TM.i+1;if(n>=TM.w.exs.length)finishW();else{loadEx(n);resumeTM();}}
+  if(TM.ph==='work'&&ex.r>0){TM.ph='rest';TM.sL=ex.r;TM.sT=ex.r;speak('Descansa');updTM();resumeTM();return}
+  if(ex.p==='warm'&&TM.warmSteps&&TM.warmIdx+1<TM.warmSteps.length){
+    TM.warmIdx++;
+    startWarmStep(true);
+    resumeTM();
+    return;
+  }
+  const n=TM.i+1;if(n>=TM.w.exs.length)finishW();else{loadEx(n);resumeTM()}
 }
-function skipEx(){clearInterval(TM.iv);TM.run=false;const n=TM.i+1;if(n>=TM.w.exs.length)finishW();else loadEx(n)}
-function restartEx(){clearInterval(TM.iv);TM.run=false;loadEx(TM.i)}
+function skipEx(){
+  clearInterval(TM.iv);TM.run=false;
+  if(TM.warmSteps&&TM.w.exs[TM.i]?.p==='warm'&&TM.warmIdx+1<TM.warmSteps.length){
+    TM.warmIdx++;startWarmStep(true);resumeTM();return;
+  }
+  const n=TM.i+1;if(n>=TM.w.exs.length)finishW();else loadEx(n);
+}
+function restartEx(){
+  clearInterval(TM.iv);TM.run=false;
+  const ex=TM.w.exs[TM.i];
+  if(ex?.p==='warm'&&TM.warmSteps){TM.warmIdx=0;startWarmStep(false);return}
+  loadEx(TM.i);
+}
 function renderExScroll(){
   const c=document.getElementById('exs');const exs=TM.w?.exs||[];
   const st=Math.max(0,TM.i-1);
