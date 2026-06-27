@@ -1275,17 +1275,17 @@ function renderWKS(){
   const grid=document.getElementById('wgrid');if(!grid)return;
   const list=activeCat==='all'?WKS:WKS.filter(w=>w.cat===activeCat);
   if(!list.length){grid.innerHTML=`<div class="emp"><div class="emp-ic"><span class="ico ico-search"></span></div><div class="emp-ttl">Sin rutinas</div></div>`;return}
-  grid.innerHTML=list.map(w=>`<div class="wc" onclick="previewW('${w.id}')">
+  grid.innerHTML=list.map(w=>{const m=getWorkoutMeta(w);return`<div class="wc" onclick="previewW('${w.id}')">
     <div class="wc-top">
       <div><span class="wc-em"><span class="ico ico-${w.emoji}"></span></span><div class="wc-nm">${w.name}</div><div class="wc-ds">${w.desc}</div></div>
       <span class="wbadge ${w.bc}">${w.badge}</span>
     </div>
     <div class="wc-ft">
-      <div class="wm"><span class="ico ico-stopwatch"></span> <strong>${w.dur}min</strong></div>
-      <div class="wm"><span class="ico ico-flame"></span> <strong>~${w.kcal}kcal</strong></div>
+      <div class="wm"><span class="ico ico-stopwatch"></span> <strong>${m.dur}min</strong></div>
+      <div class="wm"><span class="ico ico-flame"></span> <strong>~${m.kcal}kcal</strong></div>
       <div class="wm lvl-dots">${[1,2,3].map(d=>`<div class="ld ${d<=w.lvl?'on':''}"></div>`).join('')}</div>
     </div>
-  </div>`).join('');
+  </div>`}).join('');
 }
 
 // ═══════════════════════════
@@ -1320,9 +1320,10 @@ function genPlan(){
   for(let d=0;d<7;d++){
     if(trainDaysIdx.includes(d)){
       const w=scored[wkIdx%scored.length];wkIdx++;
+      const meta=getWorkoutMeta(w);
       // Vary: add mobility if 3+ training days
       const addMob=trainDaysIdx.length>=4&&wkIdx%3===0;
-      plan.push({day:d,rest:false,wid:w.id,wname:w.name,emoji:w.emoji,badge:w.badge,bc:w.bc,dur:w.dur,kcal:w.kcal,addMob});
+      plan.push({day:d,rest:false,wid:w.id,wname:w.name,emoji:w.emoji,badge:w.badge,bc:w.bc,dur:meta.dur,kcal:meta.kcal,addMob});
     }else{
       plan.push({day:d,rest:true});
     }
@@ -1390,6 +1391,20 @@ function parseReps(reps){
 function repsLabel(reps){
   const p=parseReps(reps);
   return p?`${p.sets} series × ${p.label}`:reps;
+}
+function calcExerciseSecs(ex){
+  if(ex.p==='warm'||ex.p==='cool'||ex.p==='rest')return ex.d||0;
+  const sets=parseReps(ex.reps)?.sets||1;
+  return sets*((ex.d||0)+(ex.r||0));
+}
+function calcWorkoutSecs(w){
+  return (w?.exs||[]).reduce((t,ex)=>t+calcExerciseSecs(ex),0);
+}
+function getWorkoutMeta(w){
+  const mins=Math.max(1,Math.round(calcWorkoutSecs(w)/60));
+  const base=w.dur||mins;
+  const kcal=Math.round((w.kcal||200)*(mins/base));
+  return {dur:mins,kcal};
 }
 function initSets(ex){
   const p=parseReps(ex?.reps);
@@ -1481,9 +1496,10 @@ function previewW(id){
   document.getElementById('wp-nm').textContent=w.name;
   document.getElementById('wp-ds').textContent=w.desc;
   const lvlDots=[1,2,3].map(d=>`<div class="ld ${d<=w.lvl?'on':''}" style="width:8px;height:8px"></div>`).join('');
+  const meta=getWorkoutMeta(w);
   document.getElementById('wp-meta').innerHTML=`
-    <div class="wp-pill"><span class="ico ico-stopwatch"></span>${w.dur} min</div>
-    <div class="wp-pill"><span class="ico ico-flame"></span>~${w.kcal} kcal</div>
+    <div class="wp-pill"><span class="ico ico-stopwatch"></span>${meta.dur} min</div>
+    <div class="wp-pill"><span class="ico ico-flame"></span>~${meta.kcal} kcal</div>
     <div class="wp-pill"><div class="lvl-dots" style="gap:3px">${lvlDots}</div>${['Básico','Intermedio','Avanzado'][w.lvl-1]}</div>`;
   renderWorkoutFormat('wp-format',w);
   const PH_LABEL={work:'Ejercicio',rest:'Descanso',warm:'Calentamiento',cool:'Enfriamiento'};
@@ -1651,15 +1667,16 @@ function renderExScroll(){
 function finishW(){
   clearInterval(TM.iv);TM.run=false;
   const w=TM.w,dur=Math.max(1,Math.round((Date.now()-TM.t0)/60000));
-  S.sessions.unshift({id:Date.now(),wid:w.id,name:w.name,emoji:w.emoji,date:Date.now(),dur,kcal:w.kcal});
+  S.sessions.unshift({id:Date.now(),wid:w.id,name:w.name,emoji:w.emoji,date:Date.now(),dur,kcal:getWorkoutMeta(w).kcal});
   save();speak('¡Entrenamiento completado! ¡Excelente trabajo!');
   document.getElementById('tm').classList.remove('on');document.body.style.overflow='';
   showFin(w,dur);renderHist();updateGreeting();
 }
 function showFin(w,dur){
   g2('fin-ttl',`¡${w.name} completado!`);
-  g2('fin-sub',`${w.exs.length} ejercicios · ¡Gran trabajo, ${S.profile?.name||'campeón'}!`);
-  document.getElementById('fin-stats').innerHTML=`<div class="fs-card"><div class="fs-val">${dur}</div><div class="fs-lbl">Minutos</div></div><div class="fs-card"><div class="fs-val">~${w.kcal}</div><div class="fs-lbl">Kcal</div></div><div class="fs-card"><div class="fs-val">${w.exs.length}</div><div class="fs-lbl">Ejercicios</div></div><div class="fs-card"><div class="fs-val">${S.sessions.length}</div><div class="fs-lbl">Total sesiones</div></div>`;
+  g2('fin-sub',`${w.exs.length} ejercicios · ~${getWorkoutMeta(w).dur} min estimados · ¡Gran trabajo, ${S.profile?.name||'campeón'}!`);
+  const fm=getWorkoutMeta(w);
+  document.getElementById('fin-stats').innerHTML=`<div class="fs-card"><div class="fs-val">${dur}</div><div class="fs-lbl">Minutos</div></div><div class="fs-card"><div class="fs-val">~${fm.kcal}</div><div class="fs-lbl">Kcal</div></div><div class="fs-card"><div class="fs-val">${w.exs.length}</div><div class="fs-lbl">Ejercicios</div></div><div class="fs-card"><div class="fs-val">${S.sessions.length}</div><div class="fs-lbl">Total sesiones</div></div>`;
   document.getElementById('fin').classList.add('on');
 }
 function closeFin(){document.getElementById('fin').classList.remove('on')}
@@ -2155,7 +2172,7 @@ window.addEventListener('load',()=>{
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=15')
+    navigator.serviceWorker.register('/sw.js?v=16')
       .then(r => console.log('SW registrado:', r.scope))
       .catch(e => console.log('SW error:', e));
   });
