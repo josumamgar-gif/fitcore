@@ -868,15 +868,27 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 // ═══════════════════════════
 // WORKOUT DATABASE
 // ═══════════════════════════
+// Helper: tiempos de trabajo según repeticiones (≈4 s/rep + margen)
+function SEX(n,sets,reps,rest,{heavy=false,sec=false}={}){
+  let d;
+  if(sec||/^\d+s/.test(String(reps)))d=parseInt(reps)||60;
+  else if(reps==='max')d=heavy?55:50;
+  else{const r=parseInt(reps)||10;d=Math.min(heavy?70:80,Math.round(r*(heavy?4.5:4)+12))}
+  return {n,d,r:rest,reps:`${sets}×${reps}`,p:'work'};
+}
 const WKS = [
-  {id:'fb_str',cat:'fuerza',name:'Fuerza Total',desc:'Cuerpo completo con pesas.',emoji:'barbell',badge:'Fuerza',bc:'b-str',dur:50,kcal:340,lvl:2,equip:['barbell','gym'],
-   exs:[{n:'Calentamiento dinámico',d:120,r:0,p:'warm'},{n:'Sentadilla',d:40,r:90,reps:'4×10',p:'work'},{n:'Press de banca',d:40,r:80,reps:'4×10',p:'work'},{n:'Peso muerto',d:40,r:100,reps:'4×8',p:'work'},{n:'Press militar',d:40,r:80,reps:'3×10',p:'work'},{n:'Remo con barra',d:40,r:80,reps:'3×10',p:'work'},{n:'Curl bíceps',d:35,r:60,reps:'3×12',p:'work'},{n:'Extensión tríceps',d:35,r:60,reps:'3×12',p:'work'},{n:'Plancha',d:60,r:30,reps:'3×60s',p:'work'},{n:'Vuelta a la calma',d:120,r:0,p:'cool'}]},
-  {id:'push_pull',cat:'fuerza',name:'Empuje & Tire',desc:'División push/pull para máxima eficiencia.',emoji:'dumbbell',badge:'Fuerza',bc:'b-str',dur:50,kcal:360,lvl:2,equip:['barbell','gym'],
-   exs:[{n:'Calentamiento',d:120,r:0,p:'warm'},{n:'Press inclinado',d:40,r:85,reps:'4×8',p:'work'},{n:'Remo en polea',d:40,r:75,reps:'4×10',p:'work'},{n:'Aperturas mancuernas',d:35,r:70,reps:'3×12',p:'work'},{n:'Dominadas',d:40,r:80,reps:'3×8',p:'work'},{n:'Fondos paralelas',d:35,r:70,reps:'3×10',p:'work'},{n:'Face pull',d:35,r:60,reps:'3×15',p:'work'},{n:'Curl martillo',d:30,r:55,reps:'3×12',p:'work'},{n:'Extensión tríceps polea',d:30,r:55,reps:'3×12',p:'work'},{n:'Vuelta a la calma',d:90,r:0,p:'cool'}]},
-  {id:'leg_day',cat:'fuerza',name:'Día de Piernas',desc:'Cuádriceps, isquios y glúteos al límite.',emoji:'leg',badge:'Fuerza',bc:'b-str',dur:55,kcal:400,lvl:2,equip:['barbell','gym'],
-   exs:[{n:'Calentamiento piernas',d:180,r:0,p:'warm'},{n:'Sentadilla barra',d:45,r:100,reps:'5×5',p:'work'},{n:'Prensa de piernas',d:40,r:80,reps:'4×12',p:'work'},{n:'Peso muerto rumano',d:40,r:80,reps:'3×10',p:'work'},{n:'Extensión cuádriceps',d:35,r:60,reps:'3×15',p:'work'},{n:'Curl femoral',d:35,r:60,reps:'3×15',p:'work'},{n:'Hip thrust',d:40,r:75,reps:'3×12',p:'work'},{n:'Gemelos máquina',d:35,r:50,reps:'4×20',p:'work'},{n:'Estiramiento final',d:180,r:0,p:'cool'}]},
-  {id:'bw_str',cat:'fuerza',name:'Cuerpo Libre',desc:'Fuerza sin equipamiento. En casa o donde sea.',emoji:'gymnastics',badge:'Fuerza',bc:'b-str',dur:40,kcal:280,lvl:2,equip:['bodyweight'],
-   exs:[{n:'Calentamiento',d:120,r:0,p:'warm'},{n:'Flexiones',d:40,r:60,reps:'4×max',p:'work'},{n:'Sentadilla búlgara',d:40,r:70,reps:'3×10 c/l',p:'work'},{n:'Fondos en silla',d:35,r:55,reps:'3×12',p:'work'},{n:'Pike push-up',d:35,r:60,reps:'3×10',p:'work'},{n:'Zancadas',d:40,r:60,reps:'3×10 c/l',p:'work'},{n:'Superman',d:30,r:40,reps:'3×15',p:'work'},{n:'Plancha lateral',d:30,r:30,reps:'3×30s c/l',p:'work'},{n:'Vuelta a la calma',d:90,r:0,p:'cool'}]},
+  {id:'leg_day',cat:'fuerza',name:'Piernas',desc:'Cuádriceps, isquios, glúteos y gemelos. Rutina completa de tren inferior.',emoji:'leg',badge:'Fuerza',bc:'b-str',dur:55,kcal:380,lvl:2,equip:['barbell','gym'],
+   exs:[{n:'Calentamiento piernas',d:120,r:0,p:'warm'},SEX('Sentadilla con barra',4,10,100,{heavy:true}),SEX('Prensa de piernas',3,12,80),SEX('Peso muerto rumano',3,10,90,{heavy:true}),SEX('Curl femoral',3,12,65),SEX('Hip thrust',3,12,75),SEX('Gemelos en máquina',4,15,50),{n:'Estiramiento piernas',d:120,r:0,p:'cool'}]},
+  {id:'shoulder_day',cat:'fuerza',name:'Hombros',desc:'Deltoides y trapecios. Volumen para hombros fuertes y estables.',emoji:'dumbbell',badge:'Fuerza',bc:'b-str',dur:45,kcal:300,lvl:2,equip:['dumbbells','gym'],
+   exs:[{n:'Calentamiento hombros',d:120,r:0,p:'warm'},SEX('Press militar',4,8,90,{heavy:true}),SEX('Elevaciones laterales',3,15,60),SEX('Elevaciones frontales',3,12,60),SEX('Pájaro (reverse fly)',3,15,60),SEX('Face pull',3,15,65),SEX('Encogimientos de trapecio',3,12,65),{n:'Movilidad de hombros',d:90,r:0,p:'cool'}]},
+  {id:'back_bi',cat:'fuerza',name:'Espalda + Bíceps',desc:'Tirón de espalda y aislamiento de bíceps. Combo clásico pull.',emoji:'barbell',badge:'Fuerza',bc:'b-str',dur:50,kcal:340,lvl:2,equip:['barbell','gym'],
+   exs:[{n:'Calentamiento espalda',d:120,r:0,p:'warm'},SEX('Remo con barra',4,10,90,{heavy:true}),SEX('Dominadas',3,8,90,{heavy:true}),SEX('Remo en polea baja',3,12,75),SEX('Jalón al pecho',3,12,75),SEX('Curl de bíceps',3,12,65),SEX('Curl martillo',3,12,60),{n:'Estiramiento espalda',d:90,r:0,p:'cool'}]},
+  {id:'chest_tri',cat:'fuerza',name:'Pecho + Tríceps',desc:'Empuje de pecho y aislamiento de tríceps. Combo clásico push.',emoji:'dumbbell',badge:'Fuerza',bc:'b-str',dur:50,kcal:340,lvl:2,equip:['barbell','gym'],
+   exs:[{n:'Calentamiento pecho',d:120,r:0,p:'warm'},SEX('Press de banca',4,10,90,{heavy:true}),SEX('Press inclinado con mancuernas',3,10,80),SEX('Aperturas con mancuernas',3,12,65),SEX('Fondos en paralelas',3,10,75),SEX('Extensión de tríceps en polea',3,12,60),SEX('Press francés',3,10,65),{n:'Estiramiento pecho',d:90,r:0,p:'cool'}]},
+  {id:'fb_str',cat:'fuerza',name:'Fuerza Total',desc:'Resumen de cuerpo completo: 8 ejercicios, todos los grupos musculares en una sesión.',emoji:'barbell',badge:'Fuerza',bc:'b-str',dur:60,kcal:400,lvl:2,equip:['barbell','gym'],
+   exs:[{n:'Calentamiento dinámico',d:120,r:0,p:'warm'},SEX('Sentadilla con barra',3,10,90,{heavy:true}),SEX('Press de banca',3,10,85,{heavy:true}),SEX('Remo con barra',3,10,85,{heavy:true}),SEX('Press militar',3,10,80),SEX('Curl de bíceps',3,12,60),SEX('Extensión de tríceps en polea',3,12,60),SEX('Hip thrust',3,12,70),SEX('Plancha abdominal',3,'60s',45,{sec:true}),{n:'Vuelta a la calma',d:120,r:0,p:'cool'}]},
+  {id:'bw_str',cat:'fuerza',name:'Cuerpo Libre',desc:'Fuerza sin equipamiento. Pecho, espalda, piernas y core en casa.',emoji:'gymnastics',badge:'Fuerza',bc:'b-str',dur:40,kcal:280,lvl:2,equip:['bodyweight'],
+   exs:[{n:'Calentamiento',d:120,r:0,p:'warm'},SEX('Flexiones',4,'max',60),SEX('Sentadilla búlgara',3,'10 c/l',70),SEX('Fondos en silla',3,12,55),SEX('Remo invertido',3,12,60),SEX('Zancadas',3,'10 c/l',60),SEX('Pike push-up',3,10,60),SEX('Plancha lateral',3,'30s c/l',35,{sec:true}),{n:'Vuelta a la calma',d:90,r:0,p:'cool'}]},
   {id:'hiit_c',cat:'hiit',name:'HIIT Clásico',desc:'40s trabajo · 20s descanso. El estándar de oro para quemar grasa.',emoji:'flame',badge:'HIIT',bc:'b-hiit',dur:28,kcal:420,lvl:3,equip:['bodyweight'],
    exs:[{n:'Calentamiento activo',d:180,r:0,p:'warm'},{n:'Burpees',d:40,r:20,p:'work'},{n:'Mountain climbers',d:40,r:20,p:'work'},{n:'Saltos de tijera',d:40,r:20,p:'work'},{n:'Sentadilla con salto',d:40,r:20,p:'work'},{n:'Flexiones explosivas',d:40,r:20,p:'work'},{n:'Sprint en sitio',d:40,r:20,p:'work'},{n:'Descanso activo',d:60,r:0,p:'rest'},{n:'Burpees',d:40,r:20,p:'work'},{n:'Mountain climbers',d:40,r:20,p:'work'},{n:'Saltos de tijera',d:40,r:20,p:'work'},{n:'Sentadilla con salto',d:40,r:20,p:'work'},{n:'Flexiones explosivas',d:40,r:20,p:'work'},{n:'Sprint en sitio',d:40,r:20,p:'work'},{n:'Enfriamiento',d:120,r:0,p:'cool'}]},
   {id:'hiit_kb',cat:'hiit',name:'HIIT Kettlebell',desc:'Explosividad con pesa rusa. Cardio y fuerza en uno.',emoji:'kettlebell',badge:'HIIT',bc:'b-hiit',dur:30,kcal:440,lvl:3,equip:['kettlebell'],
@@ -941,15 +953,14 @@ function togDayPick(btn,idx,ctx){
 let _emTrainDays=null;
 
 const EX_ALIAS={
-  'sentadilla':'sentadilla_barra','sentadilla barra':'sentadilla_barra','sentadillas sin peso':'sentadilla_barra','air squats':'sentadilla_barra','goblet squat':'sentadilla_barra',
-  'press de banca':'press_banca','press inclinado':'press_banca','flexiones':'press_banca','flexiones explosivas':'burpees','flexion explosiva':'burpees',
+  'sentadilla':'sentadilla_barra','sentadilla barra':'sentadilla_barra','sentadilla con barra':'sentadilla_barra','sentadillas sin peso':'sentadilla_barra','air squats':'sentadilla_barra','goblet squat':'sentadilla_barra','prensa de piernas':'sentadilla_barra',
+  'press de banca':'press_banca','press inclinado':'press_banca','press inclinado con mancuernas':'press_banca','aperturas con mancuernas':'press_banca','flexiones':'press_banca','flexiones explosivas':'burpees','flexion explosiva':'burpees',
   'peso muerto':'peso_muerto','peso muerto rumano':'peso_muerto',
-  'press militar':'press_militar','pike push up':'press_militar',
-  'remo con barra':'remo_barra','remo en polea':'remo_barra','remo kb':'remo_barra',
-  'curl biceps':'curl_biceps','curl martillo':'curl_biceps',
-  'extension triceps':'extension_triceps','extension triceps polea':'extension_triceps',
-  'dominadas':'dominadas','pull ups':'dominadas',
-  'fondos paralelas':'fondos_paralelas','fondos en silla':'fondos_paralelas',
+  'press militar':'press_militar','pike push up':'press_militar','elevaciones laterales':'press_militar','elevaciones frontales':'press_militar',
+  'remo con barra':'remo_barra','remo en polea':'remo_barra','remo en polea baja':'remo_barra','remo kb':'remo_barra','remo invertido':'remo_barra','jalón al pecho':'dominadas',
+  'curl biceps':'curl_biceps','curl de biceps':'curl_biceps','curl martillo':'curl_biceps',
+  'extension triceps':'extension_triceps','extension triceps polea':'extension_triceps','extension de triceps en polea':'extension_triceps','press francés':'extension_triceps','fondos en paralelas':'fondos_paralelas','fondos en silla':'fondos_paralelas',
+  'dominadas':'dominadas','pull ups':'dominadas','face pull':'remo_barra','curl femoral':'sentadilla_barra','gemelos en máquina':'zancadas','plancha abdominal':'plancha',
   'hip thrust':'hip_thrust','puente de gluteos':'hip_thrust','activacion de gluteos':'hip_thrust',
   'zancadas':'zancadas','zancada con kb':'zancadas','sentadilla bulgara':'zancadas','estocada con giro':'zancadas',
   'plancha':'plancha','plank':'plancha','plancha lateral':'plancha','plancha activa':'plancha','plancha lateral d':'plancha','plancha lateral i':'plancha',
@@ -2172,7 +2183,7 @@ window.addEventListener('load',()=>{
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=16')
+    navigator.serviceWorker.register('/sw.js?v=17')
       .then(r => console.log('SW registrado:', r.scope))
       .catch(e => console.log('SW error:', e));
   });
