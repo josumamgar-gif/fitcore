@@ -1,5 +1,5 @@
-// FitCore Service Worker — v20
-const CACHE = 'fitcore-v20';
+// FitCore Service Worker — v21
+const CACHE = 'fitcore-v21';
 const FILES = [
   '/',
   '/index.html',
@@ -25,16 +25,33 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // HTML siempre desde red para recibir actualizaciones inmediatas
-  if(e.request.mode==='navigate'||e.request.url.endsWith('index.html')||e.request.url.endsWith('sw.js')){
-    e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+  if (e.request.method !== 'GET') return;
+
+  const url = e.request.url;
+  const isShell = e.request.mode === 'navigate' || url.endsWith('index.html') || url.endsWith('sw.js');
+
+  // App shell: caché primero para abrir al instante, red actualiza en segundo plano
+  if (isShell) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        const network = fetch(e.request).then(res => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return res;
+        }).catch(() => cached);
+        return cached || network;
+      })
+    );
     return;
   }
+
   // Resto de assets: caché primero
   e.respondWith(
-    caches.match(e.request).then(cached=>cached||fetch(e.request).then(res=>{
-      const clone=res.clone();
-      caches.open(CACHE).then(c=>c.put(e.request,clone));
+    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+      const clone = res.clone();
+      caches.open(CACHE).then(c => c.put(e.request, clone));
       return res;
     }))
   );
