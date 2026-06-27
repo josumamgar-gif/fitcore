@@ -78,7 +78,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:transparent;color:var(--tx3);transition:color var(--t);padding:8px 2px;position:relative}
 .nb.on{color:var(--tx)}
 .nb.on::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2px;background:var(--tx);border-radius:0 0 2px 2px}
-.ni{font-size:22px;line-height:1}.nl{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.ni{font-size:20px;line-height:1}.nl{font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
 
 /* FORMS */
 .fg{margin-bottom:18px}
@@ -363,6 +363,51 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .emp-ttl{font-size:17px;font-weight:800;letter-spacing:-.3px;color:var(--tx);margin-bottom:5px}
 .emp-tx{font-size:14px;color:var(--tx2);line-height:1.6}
 
+/* CATALOG */
+.ex-grid{padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.ex-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:14px 15px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:background var(--t);box-shadow:var(--sh)}
+.ex-card:active{background:var(--bg2)}
+.ex-cat-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ex-cat-fuerza{background:var(--bg3);color:var(--tx2)}
+.ex-cat-hiit{background:var(--RL);color:var(--R)}
+.ex-cat-tabata{background:var(--GL);color:var(--G)}
+.ex-cat-cardio{background:var(--YL);color:var(--Y)}
+.ex-cat-crossfit{background:var(--PL);color:var(--P)}
+.ex-cat-movilidad{background:var(--BL);color:var(--B)}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:15px;font-weight:700;color:var(--tx);letter-spacing:-.2px}
+.ex-muscles{font-size:12px;color:var(--tx3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.ex-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:.3px;text-transform:uppercase}
+.ex-tag-lvl-beginner{background:var(--GL);color:var(--G)}
+.ex-tag-lvl-intermediate{background:var(--YL);color:var(--Y)}
+.ex-tag-lvl-advanced{background:var(--RL);color:var(--R)}
+
+/* EXERCISE DETAIL MODAL */
+#exdetail{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;display:none;align-items:flex-end}
+#exdetail.on{display:flex}
+.exd-inner{background:var(--sur);border-radius:24px 24px 0 0;width:100%;max-height:92vh;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.4,0,.2,1)}
+.exd-hd{padding:20px 20px 14px;border-bottom:1px solid var(--brd);flex-shrink:0;position:relative}
+.exd-close{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--brd);cursor:pointer;font-size:14px;color:var(--tx2);display:flex;align-items:center;justify-content:center}
+.exd-cat-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.exd-nm{font-size:24px;font-weight:900;letter-spacing:-.5px;color:var(--tx);margin-bottom:4px}
+.exd-muscles{font-size:13px;color:var(--tx3);margin-bottom:12px;line-height:1.4}
+.exd-pills{display:flex;gap:7px;flex-wrap:wrap}
+.exd-pill{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:100px;background:var(--bg2);border:1px solid var(--brd);color:var(--tx2)}
+.exd-body{overflow-y:auto;flex:1;padding:18px 20px 24px}
+.exd-sec{margin-bottom:20px}
+.exd-sec-ttl{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.exd-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.exd-step-num{width:22px;height:22px;border-radius:50%;background:var(--tx);color:var(--bg);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.exd-step-txt{font-size:14px;color:var(--tx);line-height:1.5;flex:1}
+.exd-mistake{display:flex;gap:8px;margin-bottom:7px;align-items:flex-start;padding:9px 11px;background:var(--RL);border-radius:var(--rxs)}
+.exd-mistake-ic{width:16px;height:16px;font-size:12px;color:var(--R);flex-shrink:0;margin-top:1px}
+.exd-mistake-txt{font-size:13px;color:var(--tx);line-height:1.4;flex:1}
+.exd-variants{font-size:13px;color:var(--tx2);line-height:1.6;background:var(--bg2);border-radius:var(--rsm);padding:10px 12px}
+.exd-tip{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--GL);border:1px solid var(--G);border-radius:var(--rsm)}
+.exd-tip-ico{font-size:16px;flex-shrink:0;color:var(--G)}
+.exd-tip-txt{font-size:13px;color:var(--tx);line-height:1.5;font-weight:500}
+
 /* LANDSCAPE BLOCK */
 @media screen and (orientation:landscape) and (max-height:600px){
   #rotate-msg{display:flex!important}
@@ -431,6 +476,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .ico-rice{-webkit-mask-image:url(/icons/ui/rice.svg);mask-image:url(/icons/ui/rice.svg)}
 .ico-avocado{-webkit-mask-image:url(/icons/ui/avocado.svg);mask-image:url(/icons/ui/avocado.svg)}
 .ico-water{-webkit-mask-image:url(/icons/ui/water.svg);mask-image:url(/icons/ui/water.svg)}
+.ico-book{-webkit-mask-image:url(/icons/ui/book.svg);mask-image:url(/icons/ui/book.svg)}
 .ico-skip{-webkit-mask-image:url(/icons/ui/skip.svg);mask-image:url(/icons/ui/skip.svg)}
 .ico-play{-webkit-mask-image:url(/icons/ui/play.svg);mask-image:url(/icons/ui/play.svg)}
 .ico-pause{-webkit-mask-image:url(/icons/ui/pause.svg);mask-image:url(/icons/ui/pause.svg)}
@@ -562,6 +608,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
       <div style="height:18px"></div>
     </div>
 
+    <!-- CATÁLOGO -->
+    <div class="scr" id="s-catalog">
+      <div class="sh">
+        <div class="sh-eye">Técnica y ejecución</div>
+        <div class="sh-ttl">Catálogo</div>
+        <div class="sh-sub" id="cat-sub">29 ejercicios · 6 categorías</div>
+      </div>
+      <div class="ctabs" id="ex-ctabs"></div>
+      <div class="ex-grid" id="ex-grid"></div>
+      <div style="height:18px"></div>
+    </div>
+
     <!-- HISTORIAL -->
     <div class="scr" id="s-hist">
       <div class="sh">
@@ -626,6 +684,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
     <button class="nb on" onclick="goS('train',this)" data-s="train"><div class="ni"><span class="ico ico-barbell"></span></div><div class="nl">Entrenar</div></button>
     <button class="nb" onclick="goS('plan',this)" data-s="plan"><div class="ni"><span class="ico ico-calendar"></span></div><div class="nl">Plan</div></button>
     <button class="nb" onclick="goS('dash',this)" data-s="dash"><div class="ni"><span class="ico ico-chart"></span></div><div class="nl">Progreso</div></button>
+    <button class="nb" onclick="goS('catalog',this)" data-s="catalog"><div class="ni"><span class="ico ico-book"></span></div><div class="nl">Catálogo</div></button>
     <button class="nb" onclick="goS('hist',this)" data-s="hist"><div class="ni"><span class="ico ico-clipboard"></span></div><div class="nl">Historial</div></button>
     <button class="nb" onclick="goS('set',this)" data-s="set"><div class="ni"><span class="ico ico-settings"></span></div><div class="nl">Ajustes</div></button>
   </div>
@@ -661,6 +720,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
     <div class="tm-cnt" id="tm-cnt"></div>
   </div>
   <div class="tm-ft"><div class="exs" id="exs"></div></div>
+</div>
+
+<!-- EXERCISE DETAIL MODAL -->
+<div id="exdetail">
+  <div class="exd-inner">
+    <div class="exd-hd">
+      <button class="exd-close" onclick="closeEXD()">✕</button>
+      <div class="exd-cat-badge" id="exd-badge"></div>
+      <div class="exd-nm" id="exd-nm"></div>
+      <div class="exd-muscles" id="exd-muscles"></div>
+      <div class="exd-pills" id="exd-pills"></div>
+    </div>
+    <div class="exd-body" id="exd-body"></div>
+  </div>
 </div>
 
 <!-- WORKOUT PREVIEW MODAL -->
@@ -775,6 +848,195 @@ const WKS = [
 
 const CATS=[{id:'all',l:'Todos'},{id:'fuerza',l:'<span class="ico ico-dumbbell"></span> Fuerza'},{id:'hiit',l:'<span class="ico ico-flame"></span> HIIT'},{id:'tabata',l:'<span class="ico ico-bolt"></span> Tabata'},{id:'cardio',l:'<span class="ico ico-running"></span> Cardio'},{id:'crossfit',l:'<span class="ico ico-target"></span> CrossFit'},{id:'movilidad',l:'<span class="ico ico-meditation"></span> Movilidad'}];
 const DAYS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+// ═══════════════════════════
+// EXERCISE CATALOG
+// ═══════════════════════════
+const EXERCISES=[
+  // ── FUERZA ──
+  {id:'sentadilla_barra',cat:'fuerza',name:'Sentadilla con Barra',muscles:'Cuádriceps, glúteos, isquiotibiales, core, espalda baja',level:'intermediate',equip:'Barra olímpica + discos + rack',
+   steps:['Coloca la barra sobre los trapecios. Pies a la anchura de hombros, puntas ligeramente hacia fuera.','Inspira profundamente y activa el core. Pecho arriba y espalda recta.','Flexiona caderas y rodillas a la vez, empujando las rodillas hacia fuera siguiendo la punta del pie.','Baja hasta que los muslos queden paralelos al suelo o por debajo.','Sube empujando el suelo hacia abajo, expirando al pasar el punto de mayor esfuerzo.','Bloquea caderas y rodillas al llegar arriba.'],
+   mistakes:['Rodillas hacia dentro: activa glúteos y empújalas hacia fuera.','Talones levantados: mejora la movilidad de tobillo.','Espalda redondeada: refuerza el core y no bajes más de lo que tu movilidad permita.','Mirar hacia abajo: mantén la vista al frente o ligeramente arriba.'],
+   variants:'Sentadilla frontal · Sentadilla búlgara · Sentadilla con mancuernas · Goblet squat',
+   tip:'Prioriza la técnica sobre el peso. La movilidad de tobillo y cadera es clave.'},
+
+  {id:'press_banca',cat:'fuerza',name:'Press de Banca',muscles:'Pectoral mayor, tríceps, deltoides anterior',level:'intermediate',equip:'Banco plano + barra olímpica + discos',
+   steps:['Túmbate en el banco. Agarra la barra algo más ancha que los hombros.','Junta los omóplatos y mantenlos así durante todo el ejercicio.','Baja la barra de forma controlada hacia la parte media-baja del pecho.','Los codos deben formar un ángulo de 45–75° con el torso, no a 90°.','Empuja la barra hacia arriba y ligeramente hacia atrás hasta extender los brazos.'],
+   mistakes:['Rebotar la barra en el pecho: baja con control.','Levantar los glúteos del banco.','Muñecas dobladas hacia atrás: mantenlas neutras.','Codos a 90°: sobrecarga el hombro.'],
+   variants:'Press inclinado · Press declinado · Press con mancuernas · Press agarre cerrado',
+   tip:'Aprieta la barra como si quisieras doblarla hacia dentro. Activa más el pectoral y protege los hombros.'},
+
+  {id:'peso_muerto',cat:'fuerza',name:'Peso Muerto',muscles:'Isquiotibiales, glúteos, espalda baja, trapecios, core',level:'intermediate',equip:'Barra olímpica + discos',
+   steps:['Pies a la anchura de caderas, barra sobre el empeine (a ~3 cm de las espinillas).','Flexiona las caderas hacia atrás y agarra la barra con agarre prono o mixto.','Inspira, activa el core. Pecho arriba, espalda neutral.','Empuja el suelo hacia abajo con los pies mientras la barra sube pegada a las piernas.','Extiende caderas y rodillas a la vez. No tires con la espalda.','Al llegar arriba, bloquea caderas y rodillas. Baja controlando la trayectoria.'],
+   mistakes:['Redondear la espalda baja: causa número 1 de lesiones.','Barra separada del cuerpo: debe rozar las piernas en todo momento.','Arrancar con los hombros: el movimiento empieza empujando el suelo.','Hiperextender al final: no te eches hacia atrás.'],
+   variants:'Peso muerto rumano · Peso muerto sumo · Peso muerto con mancuernas',
+   tip:'El ejercicio que más masa muscular recluta del cuerpo. Aprieta el suelo y empuja, no tires.'},
+
+  {id:'press_militar',cat:'fuerza',name:'Press Militar',muscles:'Deltoides (anterior y lateral), tríceps, trapecios, core',level:'intermediate',equip:'Barra olímpica o mancuernas',
+   steps:['De pie, pies a la anchura de hombros. Barra en los deltoides anteriores, codos ligeramente adelante.','Activa el core y aprieta los glúteos para no arquear la espalda lumbar.','Empuja la barra verticalmente sobre la cabeza.','Cuando la barra suba por encima de la frente, mete la cabeza hacia delante.','Bloquea los codos arriba. La barra debe quedar sobre las orejas.','Baja de forma controlada a la posición inicial.'],
+   mistakes:['Arquear la espalda excesivamente.','La barra no sube vertical: debe ir en línea recta.','No meter la cabeza al subir: la cabeza avanza para alinearse.'],
+   variants:'Press Arnold · Press con mancuernas · Press sentado · Push press',
+   tip:'Un core fuerte es la base para un press militar seguro y eficiente.'},
+
+  {id:'remo_barra',cat:'fuerza',name:'Remo con Barra',muscles:'Dorsal ancho, romboides, bíceps, trapecios medios',level:'intermediate',equip:'Barra olímpica + discos',
+   steps:['Inclínate hacia adelante con la cadera hasta que el torso forme ~45° con el suelo.','Agarra la barra algo más ancho que los hombros, palmas abajo. Rodillas ligeramente flexionadas.','Mantén la espalda neutral y el core activo. Brazos extendidos.','Tira de la barra hacia el abdomen, llevando los codos hacia atrás y arriba.','Aprieta los omóplatos al llegar arriba.','Baja controlando hasta la extensión completa.'],
+   mistakes:['Usar el impulso de la espalda para subir el peso.','Torso demasiado vertical: pierde el trabajo del dorsal.','No retraer las escápulas: pierdes el rango de movimiento.'],
+   variants:'Remo en polea baja · Remo con mancuerna unilateral · Remo Pendlay · Face pull',
+   tip:'El remo es el contrapeso del press de banca. Hazlos siempre en igual proporción.'},
+
+  {id:'dominadas',cat:'fuerza',name:'Dominadas',muscles:'Dorsal ancho, bíceps, romboides, teres mayor',level:'advanced',equip:'Barra de dominadas',
+   steps:['Agarra la barra con palmas al frente, algo más ancho que los hombros.','Cuelga con brazos completamente extendidos. Activa el core.','Deprime las escápulas (baja los hombros desde las orejas) antes de tirar.','Tira de los codos hacia abajo y hacia atrás.','Sube hasta que la barbilla supere la barra.','Baja lento y controlado (3–4 segundos) hasta la extensión completa.'],
+   mistakes:['Balancear el cuerpo para ayudarse.','No bajar completamente: el rango completo es clave.','Encoger los hombros al subir.'],
+   variants:'Chin-ups (agarre supino) · Agarre neutro · Asistidas con banda · Lat pulldown',
+   tip:'Si no puedes hacer ninguna, empieza con negativas (baja muy lento) o con banda de asistencia.'},
+
+  {id:'curl_biceps',cat:'fuerza',name:'Curl de Bíceps',muscles:'Bíceps braquial, braquial anterior, braquiorradial',level:'beginner',equip:'Mancuernas o barra',
+   steps:['De pie o sentado. Brazos extendidos, palmas al frente.','Mantén los codos pegados a los costados durante todo el ejercicio.','Flexiona los codos subiendo las mancuernas hacia los hombros.','Aprieta el bíceps al máximo arriba. Sostén 1 segundo.','Baja lentamente (2–3 segundos) hasta la extensión completa.'],
+   mistakes:['Balancear la espalda para subir: el peso es excesivo.','Codos que se adelantan al subir.','No bajar del todo: la extensión completa maximiza el estímulo.'],
+   variants:'Curl martillo · Curl concentrado · Curl en banco inclinado · Curl en barra Z',
+   tip:'Sube en 1 segundo, baja en 3. El tiempo bajo tensión importa más que el peso.'},
+
+  {id:'extension_triceps',cat:'fuerza',name:'Extensión de Tríceps en Polea',muscles:'Tríceps braquial (las 3 cabezas)',level:'beginner',equip:'Polea alta',
+   steps:['Frente a la polea alta. Agarra la cuerda a la altura del pecho.','Inclínate ligeramente hacia adelante. Codos pegados a los costados.','Extiende los codos empujando hacia abajo hasta los brazos completamente extendidos.','Separa las manos al llegar abajo (con cuerda) para maximizar la contracción.','Sube lentamente sin separar los codos del cuerpo.'],
+   mistakes:['Codos que se separan del cuerpo.','Usar el peso corporal para bajar.','No llegar a la extensión completa.'],
+   variants:'Extensión con mancuerna sobre la cabeza · Press francés · Fondos en silla · Kickback',
+   tip:'El tríceps es el 60% del volumen del brazo. Priorízalo si quieres brazos más grandes.'},
+
+  {id:'hip_thrust',cat:'fuerza',name:'Hip Thrust',muscles:'Glúteo mayor, isquiotibiales, core',level:'intermediate',equip:'Banco + barra olímpica + discos',
+   steps:['Apoya la parte alta de la espalda en el borde de un banco. Pies en el suelo a la anchura de caderas.','Coloca la barra sobre la cadera (usa una almohadilla). Agarra la barra con ambas manos.','Baja la cadera hacia el suelo como posición inicial.','Empuja la cadera hacia arriba hasta que el torso quede paralelo al suelo.','Aprieta los glúteos al máximo arriba.','Baja controlando hasta casi tocar el suelo y repite.'],
+   mistakes:['Hiperextender la espalda lumbar arriba: el movimiento es de cadera.','Rodillas que se cierran: empújalas hacia fuera.','No apretar los glúteos conscientemente.'],
+   variants:'Hip thrust unilateral · Puente de glúteos en el suelo · Hip thrust con banda · Con mancuerna',
+   tip:'El ejercicio más efectivo para el glúteo mayor. Más que la propia sentadilla.'},
+
+  {id:'zancadas',cat:'fuerza',name:'Zancadas',muscles:'Cuádriceps, glúteos, isquiotibiales, pantorrillas',level:'beginner',equip:'Peso corporal o mancuernas',
+   steps:['De pie, pies juntos. Da un paso largo hacia adelante.','Baja la cadera flexionando ambas rodillas hasta ~90°.','La rodilla delantera queda sobre el talón, sin sobrepasar la punta del pie.','La rodilla trasera baja hasta casi rozar el suelo.','Empuja con el pie delantero para volver a la posición inicial.'],
+   mistakes:['Rodilla delantera hacia dentro: activa el glúteo.','Torso inclinado hacia adelante: pecho arriba.','Paso demasiado corto: la rodilla sobrepasa la punta del pie.'],
+   variants:'Zancada inversa (más glúteo) · Zancada caminando · Zancada búlgara · Zancada lateral',
+   tip:'Las zancadas son unilaterales: corrigen desequilibrios entre piernas. Empieza siempre por la más débil.'},
+
+  {id:'fondos_paralelas',cat:'fuerza',name:'Fondos en Paralelas',muscles:'Tríceps, pectoral inferior, deltoides anterior',level:'intermediate',equip:'Paralelas o sillas resistentes',
+   steps:['Agarra las paralelas con brazos extendidos y cuerpo suspendido.','Inclínate ligeramente hacia adelante para más pectoral, o vertical para más tríceps.','Flexiona los codos bajando el cuerpo de forma controlada.','Baja hasta que los hombros queden al nivel de los codos (~90°).','Empuja hacia arriba extendiendo los codos.'],
+   mistakes:['Hombros que suben hacia las orejas: deprime las escápulas antes de bajar.','Bajar más de 90°: puede lesionar el hombro.','Codos muy abiertos: mantenlos cerca del cuerpo.'],
+   variants:'Asistidos con banda · Fondos en silla · Lastrados · En anillas',
+   tip:'Cuando puedas hacer 15+ repeticiones, añade peso con un cinturón lastrado.'},
+
+  {id:'plancha',cat:'fuerza',name:'Plancha Abdominal',muscles:'Core completo, rectus abdominis, transverso, glúteos, hombros',level:'beginner',equip:'Suelo (colchoneta opcional)',
+   steps:['Apoya los antebrazos en el suelo, codos bajo los hombros. Puntas de los pies en el suelo.','Eleva el cuerpo formando una línea recta de cabeza a talones.','Activa el core como si fueras a recibir un golpe en el abdomen.','Aprieta los glúteos y lleva el ombligo hacia la columna.','Mantén la cabeza neutra mirando al suelo. Respira con normalidad.'],
+   mistakes:['Cadera elevada o caída: el cuerpo debe ser una tabla recta.','Hombros encogidos: empuja el suelo con los antebrazos.','Contener la respiración.','Cabeza hacia arriba o abajo.'],
+   variants:'Plancha lateral · Plancha con elevación de pierna · Plancha con toque de hombros · En TRX',
+   tip:'30 segundos bien hechos valen más que 2 minutos con mala técnica.'},
+
+  // ── HIIT ──
+  {id:'burpees',cat:'hiit',name:'Burpees',muscles:'Cuerpo completo: pecho, tríceps, core, cuádriceps, cardio',level:'advanced',equip:'Sin equipamiento',
+   steps:['De pie, pies a la anchura de hombros.','Flexiona rodillas y apoya las manos en el suelo.','Salta los pies hacia atrás hasta la posición de flexión.','Realiza una flexión completa tocando el pecho en el suelo.','Salta los pies hacia las manos volviendo a posición de sentadilla.','Salta verticalmente hacia arriba con los brazos extendidos sobre la cabeza.','Aterriza con rodillas flexionadas y repite inmediatamente.'],
+   mistakes:['Aterrizar con rodillas rígidas: flexiona siempre al aterrizar.','Cadera caída en la plancha: activa el core.','Ir demasiado rápido sin técnica.'],
+   variants:'Burpee sin salto · Burpee con caja · Burpee con dominada · Half burpee',
+   tip:'Si los odias, es señal de que los necesitas. El ejercicio más completo que existe.'},
+
+  {id:'mountain_climbers',cat:'hiit',name:'Mountain Climbers',muscles:'Core, flexores de cadera, hombros, cardio',level:'intermediate',equip:'Sin equipamiento',
+   steps:['Posición de plancha alta: manos bajo los hombros, cuerpo recto.','Activa el core. Caderas al nivel del cuerpo.','Lleva una rodilla hacia el pecho de forma explosiva.','Vuelve a la posición inicial y lleva la otra rodilla.','Alterna los pies como si corrieras en el suelo, con ritmo constante.'],
+   mistakes:['Cadera elevada: bájala, mantén la posición de plancha.','Movimiento lento sin intensidad cardiovascular.','Hombros que se balancean: los brazos son estáticos.'],
+   variants:'Lentos (más core) · Cruzados (oblicuos) · Con sliders · Spider-man climbers',
+   tip:'2 segundos por rep en versión lenta para core, o tan rápido como puedas para HIIT.'},
+
+  {id:'saltos_tijera',cat:'hiit',name:'Saltos de Tijera',muscles:'Cardio, glúteo medio, aductores, pantorrillas',level:'beginner',equip:'Sin equipamiento',
+   steps:['De pie, pies juntos y brazos a los costados.','Salta separando los pies más ancho que los hombros.','Sube los brazos lateralmente hasta que las manos casi se toquen sobre la cabeza.','Salta de vuelta juntando pies y bajando los brazos.','Mantén un ritmo constante. Impacto suave, nunca rígido.'],
+   mistakes:['Rodillas en valgo al aterrizar: activa los glúteos.','Brazos que no suben del todo: completa el rango.','Impacto duro en el suelo: aterriza con el antepié primero.'],
+   variants:'Sin salto (menor impacto) · Con sentadilla · Star jumps · Plyo jacks',
+   tip:'Ideales para calentamiento o como ejercicio de relleno en circuitos. Suben la FC rápido.'},
+
+  {id:'sentadilla_salto',cat:'hiit',name:'Sentadilla con Salto',muscles:'Cuádriceps, glúteos, isquiotibiales, pantorrillas, cardio',level:'intermediate',equip:'Sin equipamiento',
+   steps:['Pies a la anchura de hombros, dedos ligeramente hacia fuera.','Baja en sentadilla controlada hasta los 90°.','En la posición baja, carga el peso en los talones.','Empuja el suelo con fuerza y salta verticalmente lo más alto posible.','Aterriza suavemente con el antepié primero, amortiguando con rodilla y cadera.','Sin pausa, pasa directamente a la siguiente repetición.'],
+   mistakes:['Aterrizar con rodillas rígidas.','No llegar a los 90° antes de saltar.','Rodillas en valgo al aterrizar.'],
+   variants:'Con peso (mancuernas o chaleco) · Box jumps · Broad jumps · Con pausa abajo',
+   tip:'Desarrollan potencia explosiva además de resistencia cardiovascular.'},
+
+  {id:'sprint_sitio',cat:'hiit',name:'Sprint en Sitio (High Knees)',muscles:'Flexores de cadera, core, cardio, pantorrillas',level:'beginner',equip:'Sin equipamiento',
+   steps:['De pie, pies a la anchura de caderas.','Corre en el sitio elevando las rodillas al nivel de la cadera o por encima.','Los brazos se mueven en oposición a las piernas.','Aterriza siempre en el antepié, nunca de talón.','Torso erguido, no te inclines hacia adelante.','Aumenta el ritmo progresivamente hasta la máxima velocidad.'],
+   mistakes:['Rodillas que no llegan a la cadera: baja velocidad y prioriza la altura.','Inclinarse hacia adelante.','Impacto de talón.','Brazos sin movimiento: úsalos activamente.'],
+   variants:'Lentos (más control) · Butt kicks (talones al glúteo) · Con banda de resistencia',
+   tip:'Puede elevar la FC a zonas máximas en menos de 30 segundos. Perfecto para HIIT sin espacio.'},
+
+  {id:'kb_swing',cat:'hiit',name:'Kettlebell Swing',muscles:'Glúteos, isquiotibiales, core, espalda baja, cardio',level:'intermediate',equip:'Kettlebell',
+   steps:['Pies algo más anchos que los hombros. Kettlebell en el suelo frente a ti.','Empuja la kettlebell hacia atrás entre las piernas (bisagra de cadera, no sentadilla).','Cuando la kettlebell llegue detrás de los muslos, extiende las caderas explosivamente.','La kettlebell llega a la altura de los hombros por inercia, no por fuerza de brazos.','Deja caer la kettlebell con control hacia atrás y repite.'],
+   mistakes:['Flexionar demasiado las rodillas: es bisagra de cadera, no sentadilla.','Usar los brazos para subir la kettlebell.','Redondear la espalda.'],
+   variants:'Swing con una mano · American swing (por encima de la cabeza) · Single leg swing',
+   tip:'10 minutos de swings equivalen a una carrera intensa. El cardio más eficiente con peso.'},
+
+  // ── TABATA ──
+  {id:'crunch_bicicleta',cat:'tabata',name:'Crunch Bicicleta',muscles:'Recto abdominal, oblicuos, flexores de cadera',level:'beginner',equip:'Suelo',
+   steps:['Túmbate boca arriba. Manos detrás de la cabeza, codos abiertos.','Levanta los hombros del suelo y lleva las rodillas hacia el pecho a 90°.','Lleva el codo derecho hacia la rodilla izquierda mientras extiendes la pierna derecha.','Rota hacia el otro lado: codo izquierdo a rodilla derecha.','Alterna de forma fluida simulando el pedaleo de una bicicleta.'],
+   mistakes:['Tirar del cuello con las manos: las manos solo apoyan.','Rotar solo los codos: la rotación viene del torso.','Demasiado rápido sin control.'],
+   variants:'Crunch normal · Crunch con piernas elevadas · Dead bug · Russian twist',
+   tip:'Uno de los ejercicios más efectivos para recto abdominal y oblicuos según el ACE.'},
+
+  {id:'russian_twist',cat:'tabata',name:'Russian Twist',muscles:'Oblicuos, recto abdominal, flexores de cadera',level:'beginner',equip:'Suelo + peso opcional',
+   steps:['Siéntate con rodillas flexionadas. Inclínate hacia atrás 45° con el torso.','Levanta los pies del suelo (más difícil) o mantenlos apoyados (más fácil).','Une las manos frente al pecho o agarra un peso.','Rota el torso hacia la derecha llevando las manos hacia la cadera derecha.','Vuelve al centro y rota hacia la izquierda. Eso es 1 repetición.'],
+   mistakes:['Redondear la espalda excesivamente.','Rotar solo los brazos: la rotación viene del torso.','Demasiado peso al inicio: domina el movimiento primero.'],
+   variants:'Con balón medicinal · Con disco · Con piernas elevadas · En máquina',
+   tip:'Para más intensidad, eleva los pies y junta las piernas. El core trabaja el doble.'},
+
+  {id:'leg_raises',cat:'tabata',name:'Leg Raises',muscles:'Recto abdominal inferior, flexores de cadera, core',level:'intermediate',equip:'Suelo o barra de dominadas',
+   steps:['Túmbate boca arriba. Manos bajo los glúteos para estabilidad.','Presiona la espalda baja contra el suelo activando el core.','Mantén las piernas juntas y ligeramente flexionadas.','Sube las piernas hasta los 90°.','Baja lentamente sin llegar a tocar el suelo, manteniendo la tensión.'],
+   mistakes:['Espalda arqueada: la lumbar se levanta del suelo.','Bajar demasiado rápido: el descenso lento es donde más se trabaja.','Usar el impulso: el movimiento viene del control abdominal.'],
+   variants:'Colgado en barra (más avanzado) · Con rotación · Flutter kicks · Tijeras',
+   tip:'Tomarte 3–4 segundos bajando las piernas maximiza el trabajo abdominal inferior.'},
+
+  {id:'hollow_hold',cat:'tabata',name:'Hollow Hold',muscles:'Core profundo, transverso abdominal, psoas, flexores de cadera',level:'intermediate',equip:'Suelo',
+   steps:['Túmbate boca arriba. Brazos extendidos sobre la cabeza, piernas juntas.','Activa el core empujando la zona lumbar contra el suelo.','Levanta simultáneamente brazos, hombros y piernas del suelo.','El cuerpo forma una ligera curva cóncava (como un plátano).','Mantén la posición respirando con normalidad.'],
+   mistakes:['Espalda arqueada: la lumbar se despega del suelo.','Contener el aliento: la respiración debe ser activa.','Cabeza forzada hacia el pecho.'],
+   variants:'Hollow rock (balanceo) · Con rodillas dobladas (más fácil) · En anillas · Con peso',
+   tip:'La posición base de la gimnasia. Dominarlo mejora todos los ejercicios de core.'},
+
+  // ── CARDIO ──
+  {id:'trote_zona2',cat:'cardio',name:'Trote Zona 2',muscles:'Sistema cardiovascular, piernas completas',level:'beginner',equip:'Espacio abierto o cinta de correr',
+   steps:['Empieza con 5 minutos de marcha rápida para calentar.','Pasa al trote a un ritmo en el que puedas mantener una conversación (Zona 2).','La FC debe estar entre el 60–70% de tu FCmax (220 − edad × 0.65).','Aterriza con el pie en posición media, no de talón.','Mantén los brazos a 90° y el torso ligeramente inclinado hacia adelante.','Termina con 5 minutos de marcha y estiramientos.'],
+   mistakes:['Ir demasiado rápido: si no puedes hablar, no es Zona 2.','Impacto de talón excesivo.','Brazos cruzando la línea central del cuerpo.'],
+   variants:'Marcha rápida · Bici estática · Elíptica · Natación',
+   tip:'La Zona 2 es la zona de quema de grasa por excelencia. 30–60 min, 3–4 veces por semana.'},
+
+  {id:'cardio_intervalos',cat:'cardio',name:'Cardio en Intervalos',muscles:'Sistema cardiovascular completo, piernas, core',level:'intermediate',equip:'Espacio abierto, cinta o bicicleta',
+   steps:['Calentamiento de 5 minutos a ritmo suave (Zona 2).','Aumenta el ritmo al intervalo de alta intensidad: 80–90% FCmax.','Reduce al ritmo de recuperación: 60–70% FCmax.','Alterna intervalos de alta y baja intensidad según el protocolo.','Completa los intervalos manteniendo la calidad del movimiento.','Enfriamiento de 5 minutos y estiramientos.'],
+   mistakes:['No recuperarse suficiente en la fase baja.','Saltarse el calentamiento.','Demasiados intervalos: 4–6 de calidad son suficientes.'],
+   variants:'HIIT (20s alta / 10s baja) · Tabata · Intervalos 1:1 · Pirámide de intervalos',
+   tip:'El afterburn puede mantener el metabolismo elevado hasta 48 horas después del entreno.'},
+
+  // ── CROSSFIT ──
+  {id:'thruster',cat:'crossfit',name:'Thruster',muscles:'Cuerpo completo: cuádriceps, hombros, core',level:'advanced',equip:'Barra + discos o mancuernas',
+   steps:['Agarra la barra en rack position: codos adelante, barra sobre los deltoides.','Pies a la anchura de hombros, ligeramente hacia fuera.','Realiza una sentadilla frontal completa hasta muslos paralelos.','En el punto más bajo, inicia la subida explosivamente con las piernas.','Transfiere el impulso a un press de hombros al llegar arriba.','Bloquea los brazos completamente sobre la cabeza.','Baja la barra al rack position y repite sin pausa.'],
+   mistakes:['Perder el rack position: si los codos caen, la transferencia de energía se corta.','Pausa entre sentadilla y press: debe ser un movimiento fluido.','No bloquear los brazos arriba.'],
+   variants:'Con mancuernas · Con kettlebells · Push press (sin sentadilla) · Wall ball shots',
+   tip:'Combina sentadilla frontal y press de hombros en un solo movimiento. La eficiencia técnica es todo.'},
+
+  {id:'box_jump',cat:'crossfit',name:'Box Jump',muscles:'Cuádriceps, glúteos, pantorrillas, potencia explosiva',level:'intermediate',equip:'Caja pliométrica (30–60 cm)',
+   steps:['Colócate frente a la caja a medio paso de distancia.','Flexiona rodillas y caderas, balanceando los brazos hacia atrás para cargar.','Salta explosivamente hacia adelante y arriba.','Aterriza sobre la caja con ambos pies en posición de semi-sentadilla.','Extiende completamente caderas y rodillas para completar el movimiento.','Baja dando un paso (alternando pies), nunca saltes hacia atrás de espaldas.'],
+   mistakes:['Aterrizar con piernas rectas: siempre con rodillas flexionadas.','Caja demasiado alta: empieza en 30 cm y progresa.','Bajar saltando hacia atrás sin mirar: baja siempre de frente.'],
+   variants:'Step-ups (sin salto) · Broad jumps · Lateral box jumps · Depth drop',
+   tip:'Los saltos explosivos desarrollan la capacidad de aplicar fuerza máxima en el menor tiempo.'},
+
+  // ── MOVILIDAD ──
+  {id:'cadera_9090',cat:'movilidad',name:'Cadera 90/90',muscles:'Rotadores externos e internos de cadera, glúteos, psoas',level:'beginner',equip:'Suelo (colchoneta)',
+   steps:['Siéntate con una pierna delante flexionada a 90° (rodilla y tobillo en el suelo).','La pierna trasera también a 90° hacia el lado. Ambas rodillas en ángulo recto.','Mantén la espalda recta y los isquiones en el suelo.','Inclínate hacia adelante sobre la pierna delantera (rotación externa).','Cambia llevando el torso hacia la pierna trasera (rotación interna).','Alterna entre ambas posiciones de forma controlada.'],
+   mistakes:['Un isquión levantado: reduce la inclinación.','Espalda redondeada: columna neutra siempre.','Forzar el rango: la cadera necesita tiempo para adaptarse.'],
+   variants:'Paloma (más intensidad) · Estiramiento del piriforme · Sentadilla profunda con pausa',
+   tip:'5 minutos diarios en esta posición puede transformar tu movilidad de cadera en 4–6 semanas.'},
+
+  {id:'apertura_pecho',cat:'movilidad',name:'Apertura de Pecho',muscles:'Pectorales, deltoides anterior, bíceps, cadena anterior',level:'beginner',equip:'Sin equipamiento o foam roller',
+   steps:['De pie o sentado. Entrelaza los dedos detrás de la cabeza. Codos hacia fuera.','Lleva los codos hacia atrás, abriendo el pecho y retrayendo los omóplatos.','Mantén 20–30 segundos respirando profundamente.','Variante en suelo: túmbate boca arriba con un foam roller bajo los omóplatos.','Deja caer la cabeza y los brazos hacia atrás, extendiendo la zona torácica.'],
+   mistakes:['Compensar con la zona lumbar: el movimiento viene de la zona torácica.','Forzar demasiado el rango.','Retener la respiración: la exhalación ayuda a relajar los pectorales.'],
+   variants:'Apertura con brazos en T · Doorway stretch · Extensión torácica en silla · Cat-cow',
+   tip:'5 minutos cada mañana revierte los efectos posturales de estar sentado frente a una pantalla.'},
+
+  {id:'paloma',cat:'movilidad',name:'Paloma (Pigeon Pose)',muscles:'Glúteo medio, piriforme, rotadores externos de cadera, psoas',level:'intermediate',equip:'Colchoneta',
+   steps:['Desde cuadrupedia, lleva la rodilla derecha hacia la muñeca derecha.','Desliza la pierna para que la espinilla quede perpendicular al cuerpo.','Extiende la pierna izquierda hacia atrás, empeine en el suelo.','Asienta las caderas hacia el suelo de forma equitativa.','Mantén erguido o inclínate hacia adelante apoyando los antebrazos.','Sostén 60–90 segundos por lado, respirando profundamente.'],
+   mistakes:['Cadera girada: coloca un cojín bajo el isquión elevado.','Pie muy cerca de la cadera: más tensión en la rodilla. Aleja el pie.','Dolor en la rodilla (no en la cadera): modifica la posición.'],
+   variants:'Paloma recostada (supino) · Figura 4 (más fácil) · 90/90 · Paloma con quad stretch',
+   tip:'Muchos dolores de ciática y espalda baja mejoran con 5 minutos diarios de este estiramiento.'}
+];
+
+const EX_CATS=[{id:'all',l:'Todos'},{id:'fuerza',l:'<span class="ico ico-dumbbell"></span> Fuerza'},{id:'hiit',l:'<span class="ico ico-flame"></span> HIIT'},{id:'tabata',l:'<span class="ico ico-bolt"></span> Tabata'},{id:'cardio',l:'<span class="ico ico-running"></span> Cardio'},{id:'crossfit',l:'<span class="ico ico-target"></span> CrossFit'},{id:'movilidad',l:'<span class="ico ico-meditation"></span> Movilidad'}];
+const LVL_LABEL={beginner:'Principiante',intermediate:'Intermedio',advanced:'Avanzado'};
+const CAT_ICO={fuerza:'dumbbell',hiit:'flame',tabata:'bolt',cardio:'running',crossfit:'target',movilidad:'meditation'};
 const MED_FIELDS=[{k:'waist',l:'Cintura',u:'cm'},{k:'chest',l:'Pecho',u:'cm'},{k:'hip',l:'Cadera',u:'cm'},{k:'arm_r',l:'Brazo D',u:'cm'},{k:'arm_l',l:'Brazo I',u:'cm'},{k:'thigh',l:'Muslo',u:'cm'},{k:'neck',l:'Cuello',u:'cm'}];
 
 // ═══════════════════════════
@@ -845,7 +1107,7 @@ function finishOB(){
 let activeCat='all';
 function initApp(){
   applyTh();renderProf();renderCatTabs();renderWKS();renderPlan();
-  renderDash();renderHist();updateGreeting();applyToggles();
+  renderDash();renderHist();renderCatalog();updateGreeting();applyToggles();
 }
 function updateGreeting(){
   const h=new Date().getHours(),gr=h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches';
@@ -1386,6 +1648,7 @@ function goS(name,btn){
   if(name==='set'){renderProf();applyToggles()}
   if(name==='hist')renderHist();
   if(name==='plan')renderPlan();
+  if(name==='catalog')renderCatalog();
 }
 
 // ═══════════════════════════
@@ -1407,6 +1670,69 @@ function doReset(){if(confirm('¿Borrar todos los datos? Irreversible.')){localS
 // ═══════════════════════════
 let toastT;
 function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),3000)}
+
+// ═══════════════════════════
+// CATALOG
+// ═══════════════════════════
+let activExCat='all';
+function renderCatalog(){
+  renderExCatTabs();renderExGrid();
+  g2('cat-sub',`${EXERCISES.length} ejercicios · 6 categorías`);
+}
+function renderExCatTabs(){
+  const c=document.getElementById('ex-ctabs');if(!c)return;
+  c.innerHTML=EX_CATS.map(x=>`<button class="ctab ${x.id===activExCat?'on':''}" onclick="setExCat('${x.id}',this)">${x.l}</button>`).join('');
+}
+function setExCat(id,btn){activExCat=id;document.querySelectorAll('#ex-ctabs .ctab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderExGrid()}
+function renderExGrid(){
+  const grid=document.getElementById('ex-grid');if(!grid)return;
+  const list=activExCat==='all'?EXERCISES:EXERCISES.filter(e=>e.cat===activExCat);
+  grid.innerHTML=list.map(ex=>`
+    <div class="ex-card" onclick="openEXD('${ex.id}')">
+      <div class="ex-cat-ico ex-cat-${ex.cat}"><span class="ico ico-${CAT_ICO[ex.cat]}"></span></div>
+      <div class="ex-info">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-muscles">${ex.muscles}</div>
+        <div class="ex-tags">
+          <span class="ex-tag ex-tag-lvl-${ex.level}">${LVL_LABEL[ex.level]}</span>
+        </div>
+      </div>
+      <div style="color:var(--tx3);font-size:15px">›</div>
+    </div>`).join('');
+}
+function openEXD(id){
+  const ex=EXERCISES.find(e=>e.id===id);if(!ex)return;
+  const catColors={fuerza:'b-str',hiit:'b-hiit',tabata:'b-tab',cardio:'b-card',crossfit:'b-cf',movilidad:'b-mob'};
+  const catNames={fuerza:'Fuerza',hiit:'HIIT',tabata:'Tabata',cardio:'Cardio',crossfit:'CrossFit',movilidad:'Movilidad'};
+  document.getElementById('exd-badge').innerHTML=`<span class="ico ico-${CAT_ICO[ex.cat]}" style="font-size:12px"></span>&nbsp;${catNames[ex.cat]}`;
+  document.getElementById('exd-badge').className=`exd-cat-badge wbadge ${catColors[ex.cat]}`;
+  document.getElementById('exd-nm').textContent=ex.name;
+  document.getElementById('exd-muscles').textContent=ex.muscles;
+  document.getElementById('exd-pills').innerHTML=`
+    <div class="exd-pill"><span class="ico ico-${CAT_ICO[ex.cat]}" style="font-size:12px"></span>${catNames[ex.cat]}</div>
+    <div class="exd-pill">${LVL_LABEL[ex.level]}</div>
+    <div class="exd-pill"><span class="ico ico-dumbbell" style="font-size:12px"></span>${ex.equip}</div>`;
+  document.getElementById('exd-body').innerHTML=`
+    <div class="exd-sec">
+      <div class="exd-sec-ttl">Cómo hacerlo</div>
+      ${ex.steps.map((s,i)=>`<div class="exd-step"><div class="exd-step-num">${i+1}</div><div class="exd-step-txt">${s}</div></div>`).join('')}
+    </div>
+    <div class="exd-sec">
+      <div class="exd-sec-ttl">Errores comunes</div>
+      ${ex.mistakes.map(m=>`<div class="exd-mistake"><div class="exd-mistake-ic"><span class="ico ico-flame" style="font-size:13px;color:var(--R)"></span></div><div class="exd-mistake-txt">${m}</div></div>`).join('')}
+    </div>
+    <div class="exd-sec">
+      <div class="exd-sec-ttl">Variantes</div>
+      <div class="exd-variants">${ex.variants}</div>
+    </div>
+    <div class="exd-sec">
+      <div class="exd-sec-ttl">Consejo</div>
+      <div class="exd-tip"><div class="exd-tip-ico"><span class="ico ico-bolt" style="font-size:15px;color:var(--G)"></span></div><div class="exd-tip-txt">${ex.tip}</div></div>
+    </div>`;
+  document.getElementById('exdetail').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeEXD(){document.getElementById('exdetail').classList.remove('on');document.body.style.overflow=''}
 
 // ═══════════════════════════
 // BOOT
