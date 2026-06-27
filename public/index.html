@@ -271,7 +271,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .sc-tr{font-size:12px;margin-top:3px;font-weight:600}
 .td{color:var(--G)}.tu{color:var(--R)}.tn{color:var(--tx3)}
 .cwrap{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:16px;box-shadow:var(--sh)}
-.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ch-wrap{position:relative;width:100%;margin-top:4px}
+#wch{display:block;width:100%;height:175px;touch-action:none}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap}
 .ct{font-size:15px;font-weight:700;color:var(--tx)}
 .ctbs{display:flex;gap:4px}
 .ctb{padding:4px 9px;border-radius:100px;border:1px solid var(--brd);font-size:12px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--tx3);transition:all var(--t)}
@@ -581,7 +583,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
               <button class="ctb" onclick="setPd('all',this)">Todo</button>
             </div>
           </div>
-          <canvas id="wch" height="175"></canvas>
+          <div class="ch-wrap">
+            <canvas id="wch"></canvas>
+          </div>
           <div id="ch-emp" class="emp" style="display:none;padding:20px 0">
             <div class="emp-ic"><span class="ico ico-trending-down"></span></div>
             <div class="emp-ttl">Sin registros aún</div>
@@ -1416,7 +1420,124 @@ function renderTDEE(){
 // ═══════════════════════════
 // DASHBOARD
 // ═══════════════════════════
-let cpd='7',wch=null;
+let cpd='7',wch=null,wchObs=null;
+
+function renderWChart(){
+  const cv=document.getElementById('wch'),emp=document.getElementById('ch-emp');if(!cv)return;
+  const now=Date.now();let ws=[...S.weights];
+  if(cpd!=='all')ws=ws.filter(w=>now-w.date<+cpd*86400000);
+  if(ws.length<2){
+    cv.style.display='none';
+    if(emp)emp.style.display='block';
+    if(wchObs){wchObs.disconnect();wchObs=null}
+    if(wch){wch.dead=true;wch=null}
+    return;
+  }
+  cv.style.display='block';if(emp)emp.style.display='none';
+  if(wch){wch.dead=true;wch=null}
+  if(wchObs){wchObs.disconnect();wchObs=null}
+  const dk=document.documentElement.getAttribute('data-theme')==='dark';
+  const labels=ws.map(w=>{const d=new Date(w.date);return`${d.getDate()}/${d.getMonth()+1}`});
+  const data=ws.map(w=>w.val);
+  const colors={lc:dk?'#52b788':'#2d6a4f',gc:dk?'#333330':'#e4e4e0',tc:dk?'#666663':'#999996'};
+  const draw=()=>{
+    if(cv.offsetWidth===0)return;
+    wch=new MChart(cv.getContext('2d'),labels,data,colors.lc,colors.gc,colors.tc,S.profile?.goalW);
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(draw));
+  if(typeof ResizeObserver!=='undefined'){
+    wchObs=new ResizeObserver(()=>{
+      if(wch)wch.dead=true;
+      requestAnimationFrame(draw);
+    });
+    wchObs.observe(cv.parentElement||cv);
+  }
+}
+
+class MChart{
+  constructor(ctx,labels,data,lc,gc,tc,goal){
+    Object.assign(this,{ctx,labels,data,lc,gc,tc,goal,dead:false});
+    this.draw();
+  }
+  draw(){
+    if(this.dead)return;
+    const{ctx,labels,data,lc,gc,tc,goal}=this;
+    const cv=ctx.canvas;
+    const wrap=cv.parentElement;
+    const W=Math.max((wrap&&wrap.clientWidth)||cv.offsetWidth||300,200);
+    const H=175;
+    const dpr=Math.min(window.devicePixelRatio||1,3);
+    cv.width=Math.round(W*dpr);
+    cv.height=Math.round(H*dpr);
+    cv.style.width=W+'px';
+    cv.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,W,H);
+    const P={t:16,r:14,b:32,l:46},cW=W-P.l-P.r,cH=H-P.t-P.b;
+    const allV=[...data];if(goal!=null)allV.push(goal);
+    let mn=Math.floor(Math.min(...allV)-1.5),mx=Math.ceil(Math.max(...allV)+1.5);
+    if(mx-mn<2){mn-=1;mx+=1}
+    const rng=mx-mn||1;
+    const n=data.length;
+    const xS=n>1?cW/(n-1):0;
+    const tY=v=>P.t+cH-((v-mn)/rng)*cH;
+    const tX=i=>P.l+(n>1?i*xS:cW/2);
+    // Grid + Y labels
+    ctx.textBaseline='middle';
+    for(let i=0;i<=4;i++){
+      const y=P.t+(cH/4)*i;
+      ctx.strokeStyle=gc;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(P.l+cW,y);ctx.stroke();
+      ctx.fillStyle=tc;ctx.font='11px -apple-system,BlinkMacSystemFont,sans-serif';
+      ctx.textAlign='right';
+      ctx.fillText((mx-(rng/4)*i).toFixed(1),P.l-6,y);
+    }
+    // Goal line
+    if(goal!=null&&goal>=mn-1&&goal<=mx+1){
+      const gy=tY(goal);
+      ctx.setLineDash([5,4]);ctx.strokeStyle='#b7791f';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(P.l,gy);ctx.lineTo(P.l+cW,gy);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#b7791f';ctx.font='10px -apple-system,BlinkMacSystemFont,sans-serif';
+      ctx.textAlign='left';
+      const lbl=`Meta ${goal} kg`;
+      const tw=ctx.measureText(lbl).width;
+      const lx=Math.min(P.l+cW-tw-4,P.l+4);
+      ctx.fillStyle=dkFill();
+      ctx.fillRect(lx-3,gy-14,tw+6,12);
+      ctx.fillStyle='#b7791f';
+      ctx.fillText(lbl,lx,gy-8);
+    }
+    // Area fill
+    const gr=ctx.createLinearGradient(0,P.t,0,P.t+cH);
+    gr.addColorStop(0,lc+'55');gr.addColorStop(1,lc+'00');
+    ctx.beginPath();
+    data.forEach((v,i)=>i===0?ctx.moveTo(tX(i),tY(v)):ctx.lineTo(tX(i),tY(v)));
+    ctx.lineTo(tX(n-1),P.t+cH);ctx.lineTo(tX(0),P.t+cH);ctx.closePath();
+    ctx.fillStyle=gr;ctx.fill();
+    // Line
+    ctx.beginPath();ctx.strokeStyle=lc;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';
+    data.forEach((v,i)=>i===0?ctx.moveTo(tX(i),tY(v)):ctx.lineTo(tX(i),tY(v)));
+    ctx.stroke();
+    // Points
+    const dk=document.documentElement.getAttribute('data-theme')==='dark';
+    data.forEach((v,i)=>{
+      ctx.beginPath();ctx.arc(tX(i),tY(v),4.5,0,Math.PI*2);
+      ctx.fillStyle=lc;ctx.fill();
+      ctx.strokeStyle=dk?'#1e1e1c':'#fff';ctx.lineWidth=2;ctx.stroke();
+    });
+    // X labels
+    ctx.fillStyle=tc;ctx.font='10px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='top';
+    const skip=n>10?Math.ceil(n/6):n>6?2:1;
+    labels.forEach((l,i)=>{
+      if(skip>1&&i%skip!==0&&i!==n-1)return;
+      ctx.fillText(l,tX(i),H-P.b+4);
+    });
+  }
+}
+function dkFill(){return document.documentElement.getAttribute('data-theme')==='dark'?'#1e1e1c':'#fff'}
+
 function renderDash(){renderDashStats();renderWChart();renderProj();renderWLog();renderMeds();renderTDEE()}
 
 function renderDashStats(){
@@ -1434,58 +1555,6 @@ function renderDashStats(){
 }
 
 function setPd(p,btn){cpd=p;document.querySelectorAll('.ctb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderWChart()}
-
-function renderWChart(){
-  const cv=document.getElementById('wch'),emp=document.getElementById('ch-emp');if(!cv)return;
-  const now=Date.now();let ws=[...S.weights];
-  if(cpd!=='all')ws=ws.filter(w=>now-w.date<+cpd*86400000);
-  if(ws.length<2){cv.style.display='none';if(emp)emp.style.display='block';return}
-  cv.style.display='block';if(emp)emp.style.display='none';
-  if(wch){wch.dead=true;wch=null}
-  const dk=document.documentElement.getAttribute('data-theme')==='dark';
-  wch=new MChart(cv.getContext('2d'),
-    ws.map(w=>{const d=new Date(w.date);return`${d.getDate()}/${d.getMonth()+1}`}),
-    ws.map(w=>w.val),
-    dk?'#52b788':'#2d6a4f',dk?'#333330':'#e4e4e0',dk?'#666663':'#999996',S.profile?.goalW
-  );
-}
-
-class MChart{
-  constructor(ctx,labels,data,lc,gc,tc,goal){Object.assign(this,{ctx,labels,data,lc,gc,tc,goal,dead:false});this.draw()}
-  draw(){
-    if(this.dead)return;
-    const{ctx,labels,data,lc,gc,tc,goal}=this,cv=ctx.canvas;
-    const W=cv.offsetWidth||340,H=175,dpr=window.devicePixelRatio||1;
-    cv.width=W*dpr;cv.height=H*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
-    const P={t:12,r:12,b:28,l:40},cW=W-P.l-P.r,cH=H-P.t-P.b;
-    const allV=[...data];if(goal)allV.push(goal);
-    let mn=Math.floor(Math.min(...allV)-1.5),mx=Math.ceil(Math.max(...allV)+1.5);
-    const rng=mx-mn||1;
-    const xS=data.length>1?cW/(data.length-1):cW;
-    const tY=v=>P.t+cH-((v-mn)/rng)*cH,tX=i=>P.l+i*xS;
-    for(let i=0;i<=4;i++){
-      const y=P.t+(cH/4)*i;ctx.strokeStyle=gc;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(P.l+cW,y);ctx.stroke();
-      ctx.fillStyle=tc;ctx.font='11px -apple-system,sans-serif';ctx.textAlign='right';ctx.fillText((mx-(rng/4)*i).toFixed(1),P.l-4,y+4);
-    }
-    if(goal&&goal>=mn&&goal<=mx+2){
-      const gy=tY(goal);ctx.setLineDash([4,4]);ctx.strokeStyle='#b7791f';ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(P.l,gy);ctx.lineTo(P.l+cW,gy);ctx.stroke();ctx.setLineDash([]);
-      ctx.fillStyle='#b7791f';ctx.font='10px -apple-system,sans-serif';ctx.textAlign='right';ctx.fillText(`Meta ${goal}kg`,P.l+cW,gy-4);
-    }
-    const gr=ctx.createLinearGradient(0,P.t,0,P.t+cH);gr.addColorStop(0,lc+'44');gr.addColorStop(1,lc+'00');
-    ctx.beginPath();data.forEach((v,i)=>i===0?ctx.moveTo(tX(i),tY(v)):ctx.lineTo(tX(i),tY(v)));
-    ctx.lineTo(tX(data.length-1),P.t+cH);ctx.lineTo(tX(0),P.t+cH);ctx.closePath();ctx.fillStyle=gr;ctx.fill();
-    ctx.beginPath();ctx.strokeStyle=lc;ctx.lineWidth=2.5;ctx.lineJoin='round';
-    data.forEach((v,i)=>i===0?ctx.moveTo(tX(i),tY(v)):ctx.lineTo(tX(i),tY(v)));ctx.stroke();
-    data.forEach((v,i)=>{
-      const dk=document.documentElement.getAttribute('data-theme')==='dark';
-      ctx.beginPath();ctx.arc(tX(i),tY(v),4,0,Math.PI*2);ctx.fillStyle=lc;ctx.fill();
-      ctx.strokeStyle=dk?'#1e1e1c':'#fff';ctx.lineWidth=2;ctx.stroke();
-    });
-    ctx.fillStyle=tc;ctx.font='11px -apple-system,sans-serif';ctx.textAlign='center';
-    labels.forEach((l,i)=>{if(labels.length>8&&i%2!==0)return;ctx.fillText(l,tX(i),H-6)});
-  }
-}
 
 function renderProj(){
   const wrap=document.getElementById('proj-wrap');if(!wrap)return;
@@ -1629,7 +1698,7 @@ function applyTh(){
   document.documentElement.setAttribute('data-theme',dk?'dark':'light');
   document.getElementById('meta-tc').content=dk?'#0f0f0e':'#f7f7f5';
 }
-function togTheme(){S.settings.theme=S.settings.theme==='dark'?'light':'dark';applyTh();save();applyToggles();setTimeout(renderWChart,60)}
+function togTheme(){S.settings.theme=S.settings.theme==='dark'?'light':'dark';applyTh();save();applyToggles();setTimeout(renderWChart,80)}
 function togNotif(){S.settings.notifs=!S.settings.notifs;save();applyToggles();if(S.settings.notifs){reqNotPerm();toast('Recordatorios activados')}else toast('Recordatorios desactivados')}
 function togVoice(){S.settings.voice=!S.settings.voice;save();applyToggles();toast(S.settings.voice?'Voz activada':'Voz desactivada')}
 function reqNotPerm(){if('Notification'in window&&Notification.permission==='default')Notification.requestPermission()}
